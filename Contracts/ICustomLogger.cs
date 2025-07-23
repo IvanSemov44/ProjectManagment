@@ -1,6 +1,6 @@
 ﻿namespace Contracts
 {
-    internal interface ICustomLogger
+    public interface ICustomLogger
     {
         void LogDebug(string message);
         void LogInformation(string message);
