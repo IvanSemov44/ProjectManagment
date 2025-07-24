@@ -1,17 +1,36 @@
-using Contracts;
-using LoggingService;
 using Serilog;
+
+using Microsoft.EntityFrameworkCore;
+
+using Application;
+using Application.Absrtactions;
+using Contracts;
+using Domain;
+using Infrastructure;
+using LoggingService;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IServiceManager, ServiceManager>();
+builder.Services.AddSingleton<ICustomLogger, CustomLogger>();
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnectionString");
+
+
+builder.Services.AddDbContext<ApplicationDbContext>(
+    options => options.UseSqlServer(
+        connectionString,
+        x => x.MigrationsAssembly("ProjectManagement")));
+
 builder.Host.UseSerilog((hostContext, configuration) =>
 {
     configuration.ReadFrom.Configuration(hostContext.Configuration);
 });
-
-builder.Services.AddSingleton<ICustomLogger, CustomLogger>();
 
 var app = builder.Build();
 
