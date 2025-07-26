@@ -8,6 +8,9 @@ using Contracts;
 using Domain;
 using Infrastructure;
 using LoggingService;
+using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 
 
@@ -37,14 +40,43 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
 
-app.MapGet("/", () => "Hello World!");
-
-app.MapGet("/test", (ICustomLogger logger) =>
+app.MapGet("api/projects", async ([
+    FromServices] IServiceManager serviceManager,
+    CancellationToken cancellationToken) =>
 {
-    logger.LogDebug("This is a debug message");
-    logger.LogInformation("This is a information message");
-    logger.LogWarning("This is a warning message");
-    logger.LogError("This is error message");
+    try
+    {
+        var projects = await serviceManager.ProjectService
+        .GetAllProjectsAsync(cancellationToken);
+        return Results.Ok(projects);
+    }
+    catch
+    {
+        return Results.StatusCode(
+            (int)HttpStatusCode.InternalServerError);
+    }
+});
+
+app.MapGet("api/projects/{id:guid}", async (
+    [FromRoute] Guid id,
+    [FromServices] IServiceManager serviceManager,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var project = await serviceManager.ProjectService
+        .GetProjectAsync(
+            id,
+            trackChanges: false,
+            cancellationToken);
+
+        return Results.Ok(project);
+    }
+    catch
+    {
+        return Results.StatusCode(
+            (int)HttpStatusCode.InternalServerError);
+    }
 });
 
 app.Run();
