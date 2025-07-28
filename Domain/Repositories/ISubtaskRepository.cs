@@ -11,5 +11,7 @@
         Task<IEnumerable<Subtask>> GetAllSubtasksForProjectAsync(
             Guid projectId,
             CancellationToken cancellationToken = default);
+
+        void CreateSubtask(Subtask subtask);
     }
 }

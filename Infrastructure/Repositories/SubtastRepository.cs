@@ -17,10 +17,15 @@ namespace Infrastructure.Repositories
         public async Task<Subtask?> GetSubtaskForProjectAsync(Guid projectId, Guid id, bool trackChanges, CancellationToken cancellationToken = default)
         {
             return await GetByCondition(x =>
-                x.ProjectId.Equals(projectId) && 
+                x.ProjectId.Equals(projectId) &&
                 x.Id.Equals(id),
                 trackChanges)
                 .SingleOrDefaultAsync(cancellationToken);
+        }
+
+        public void CreateSubtask(Subtask subtask)
+        {
+            Insert(subtask);
         }
     }
 }

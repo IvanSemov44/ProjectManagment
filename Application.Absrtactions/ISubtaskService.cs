@@ -13,5 +13,10 @@ namespace Application.Absrtactions
             Guid id,
             bool trackChanges,
             CancellationToken cancellationToken = default);
+
+        Task<SubtaskResponse> CreateSubtaskAsync(
+            Guid projectId,
+            CreateSubtaskRequest request,
+            CancellationToken cancellationToken);
     }
 }

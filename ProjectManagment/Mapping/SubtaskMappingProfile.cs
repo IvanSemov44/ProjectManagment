@@ -9,6 +9,7 @@ namespace ProjectManagement.Mapping
         public SubtaskMappingProfile()
         {
             CreateMap<Subtask, SubtaskResponse>();
+            CreateMap<CreateSubtaskRequest, Subtask>();
         }
     }
 }

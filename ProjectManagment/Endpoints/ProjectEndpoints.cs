@@ -6,11 +6,12 @@ namespace ProjectManagement.Endpoints
 {
     public static class ProjectEndpoints
     {
+        const string route = "api/projects";
         public static void RegisterProjectEndpoints(
             this IEndpointRouteBuilder routeBuilder)
         {
 
-            routeBuilder.MapGet("api/projects", async ([
+            routeBuilder.MapGet(route, async ([
                 FromServices] IServiceManager serviceManager,
                 CancellationToken cancellationToken) =>
             {
@@ -19,7 +20,7 @@ namespace ProjectManagement.Endpoints
                 return Results.Ok(projects);
             });
 
-            routeBuilder.MapGet("api/projects/{id:guid}", async (
+            routeBuilder.MapGet(route + "/{id:guid}", async (
                 [FromRoute] Guid id,
                 [FromServices] IServiceManager serviceManager,
                 CancellationToken cancellationToken) =>
@@ -34,7 +35,7 @@ namespace ProjectManagement.Endpoints
             })
             .WithName("GetProjectById");
 
-            routeBuilder.MapPost("api/projects", async (
+            routeBuilder.MapPost(route, async (
                 [FromBody] CreateProjectRequest request,
                 [FromServices] IServiceManager serviceManager,
                 CancellationToken cancellationToken) =>
