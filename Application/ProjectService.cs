@@ -2,6 +2,7 @@
 using Contracts;
 using Contracts.Projects;
 using Domain;
+using Domain.Expetions;
 
 namespace Application
 {
@@ -10,45 +11,31 @@ namespace Application
     {
         public async Task<IEnumerable<ProjectResponse>> GetAllProjectsAsync(CancellationToken cancellationToken = default)
         {
-            try
-            {
-                var projects = await unitOfWork.ProjectRepository.GetAllProjectsAsync(cancellationToken);
+            var projects = await unitOfWork.ProjectRepository.GetAllProjectsAsync(cancellationToken);
 
-                var response = projects.Select(x => new ProjectResponse(
-                    Id: x.Id,
-                    Name: x.Name,
-                    Description: x.Description))
-                    .ToList();
+            var response = projects.Select(x => new ProjectResponse(
+                Id: x.Id,
+                Name: x.Name,
+                Description: x.Description))
+                .ToList();
 
-                return response;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"The exception was trown by the {nameof(GetAllProjectsAsync)}");
-                throw;
-            }
+            return response;
         }
 
         public async Task<ProjectResponse> GetProjectAsync(Guid id, bool trackChanges, CancellationToken cancellationToken = default)
         {
-            try
-            {
-                var project = await unitOfWork.ProjectRepository
-                    .GetProjectAsync(id, trackChanges, cancellationToken);
+            var project = await unitOfWork.ProjectRepository
+                .GetProjectAsync(id, trackChanges, cancellationToken);
 
-                var response = new ProjectResponse(
-                    Id: project.Id,
-                    Name: project.Name,
-                    Description: project.Description);
+            if (project == null)
+                throw new ProjectNotFoundException(id);
 
-                return response;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"The exception was thrown by the {nameof(GetProjectAsync)} method: {ex}");
+            var response = new ProjectResponse(
+                Id: project.Id,
+                Name: project.Name,
+                Description: project.Description);
 
-                throw;
-            }
+            return response;
         }
     }
 }
