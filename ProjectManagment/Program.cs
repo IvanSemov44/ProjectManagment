@@ -67,4 +67,15 @@ app.MapGet("api/projects/{id:guid}", async (
     return Results.Ok(project);
 });
 
+app.MapGet("api/projects/{projectId:guid}/subtasks", async (
+    [FromRoute] Guid projectId,
+    [FromServices] IServiceManager serviceManager,
+    CancellationToken cancellationToken) =>
+{
+    var subtastks = await serviceManager.SubtaskService
+    .GetAllSubtasksForProjectAsync(projectId, cancellationToken);
+
+    return Results.Ok(subtastks);
+});
+
 app.Run();
