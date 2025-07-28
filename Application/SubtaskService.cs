@@ -1,4 +1,5 @@
 ﻿using Application.Absrtactions;
+using AutoMapper;
 using Contracts;
 using Contracts.Subtasks;
 using Domain;
@@ -6,7 +7,7 @@ using Domain.Expetions;
 
 namespace Application
 {
-    public sealed class SubtaskService(ICustomLogger logger, IUnitOfWork unitOfWork)
+    public sealed class SubtaskService(ICustomLogger logger, IUnitOfWork unitOfWork, IMapper mapper)
         : ISubtaskService
     {
         public async Task<IEnumerable<SubtaskResponse>> GetAllSubtasksForProjectAsync(Guid projectId, CancellationToken cancellationToken = default)
@@ -19,16 +20,7 @@ namespace Application
             var subtasks = await unitOfWork.SubtaskRepository
                 .GetAllSubtasksForProjectAsync(projectId, cancellationToken);
 
-            var response = new List<SubtaskResponse>();
-
-            foreach (var subtask in subtasks)
-            {
-                response.Add(new SubtaskResponse(
-                    Id: subtask.Id,
-                    Title: subtask.Title,
-                    Description: subtask.Description,
-                    IsCompleted: subtask.IsCompleted));
-            }
+            var response = mapper.Map<IEnumerable<SubtaskResponse>>(subtasks);
 
             return response;
         }
@@ -43,11 +35,7 @@ namespace Application
                 .GetSubtaskForProjectAsync(projectId, id, trackChanges, cancellationToken)
                 ?? throw new SubtaskNotFoundException(id);
 
-            var response = new SubtaskResponse(
-                Id: subtask.Id,
-                Title: subtask.Title,
-                Description: subtask.Description,
-                IsCompleted: subtask.IsCompleted);
+            var response = mapper.Map<SubtaskResponse>(subtask);
 
             return response;
         }
