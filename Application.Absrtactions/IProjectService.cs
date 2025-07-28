@@ -11,5 +11,9 @@ namespace Application.Absrtactions
             Guid id,
             bool trackChanges,
             CancellationToken cancellationToken = default);
+
+        Task<ProjectResponse> CreateProject(
+            CreateProjectRequest request,
+            CancellationToken cancellationToken = default);
     }
 }

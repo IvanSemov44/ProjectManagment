@@ -11,6 +11,7 @@ namespace Application
         ICustomLogger logger, IUnitOfWork unitOfWork, IMapper mapper)
         : IProjectService
     {
+
         public async Task<IEnumerable<ProjectResponse>> GetAllProjectsAsync(CancellationToken cancellationToken = default)
         {
             var projects = await unitOfWork.ProjectRepository.GetAllProjectsAsync(cancellationToken);
@@ -25,6 +26,20 @@ namespace Application
             var project = await unitOfWork.ProjectRepository
                 .GetProjectAsync(id, trackChanges, cancellationToken)
                 ?? throw new ProjectNotFoundException(id);
+
+            var response = mapper.Map<ProjectResponse>(project);
+
+            return response;
+        }
+
+        public async Task<ProjectResponse> CreateProject(
+            CreateProjectRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            var project = mapper.Map<Project>(request);
+
+            unitOfWork.ProjectRepository.CreateProject(project);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
 
             var response = mapper.Map<ProjectResponse>(project);
 

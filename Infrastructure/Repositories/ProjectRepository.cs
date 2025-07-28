@@ -17,5 +17,11 @@ namespace Infrastructure.Repositories
             return await GetByCondition(x => x.Id.Equals(id), trackChanges)
                 .SingleOrDefaultAsync(cancellationToken);
         }
+
+        public void CreateProject(Project project)
+        {
+            Insert(project);
+        }
+
     }
 }

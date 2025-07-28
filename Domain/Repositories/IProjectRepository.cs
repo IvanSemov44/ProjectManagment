@@ -9,5 +9,7 @@
             Guid id,
             bool trackChanges,
             CancellationToken cancellationToken);
+
+        void CreateProject(Project project);
     }
 }

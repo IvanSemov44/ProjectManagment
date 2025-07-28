@@ -1,4 +1,5 @@
 ﻿using Application.Absrtactions;
+using Contracts.Projects;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ProjectManagement.Endpoints
@@ -30,6 +31,21 @@ namespace ProjectManagement.Endpoints
                     cancellationToken);
 
                 return Results.Ok(project);
+            })
+            .WithName("GetProjectById");
+
+            routeBuilder.MapPost("api/projects", async (
+                [FromBody] CreateProjectRequest request,
+                [FromServices] IServiceManager serviceManager,
+                CancellationToken cancellationToken) =>
+            {
+                var project = await serviceManager.ProjectService
+                .CreateProject(request, cancellationToken);
+
+                return Results.CreatedAtRoute(
+                    routeName: "GetProjectById",
+                    routeValues: new { id = project.Id },
+                    value: project);
             });
 
         }
