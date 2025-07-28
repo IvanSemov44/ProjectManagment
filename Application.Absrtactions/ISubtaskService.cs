@@ -7,5 +7,11 @@ namespace Application.Absrtactions
         Task<IEnumerable<SubtaskResponse>> GetAllSubtasksForProjectAsync(
             Guid projectId,
             CancellationToken cancellationToken = default);
+
+        Task<SubtaskResponse> GetSubtaskForProjectAsync(
+            Guid projectId,
+            Guid id,
+            bool trackChanges,
+            CancellationToken cancellationToken = default);
     }
 }

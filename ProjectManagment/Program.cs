@@ -1,5 +1,6 @@
 using Serilog;
 
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 using Application;
@@ -8,11 +9,7 @@ using Contracts;
 using Domain;
 using Infrastructure;
 using LoggingService;
-using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Mvc;
-using System.Net;
 using ProjectManagement.Middleware;
-
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,8 +19,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IServiceManager, ServiceManager>();
 builder.Services.AddSingleton<ICustomLogger, CustomLogger>();
+
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+builder.Services.AddAutoMapper(typeof(Program));
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnectionString");
 
@@ -76,6 +76,22 @@ app.MapGet("api/projects/{projectId:guid}/subtasks", async (
     .GetAllSubtasksForProjectAsync(projectId, cancellationToken);
 
     return Results.Ok(subtastks);
+});
+
+app.MapGet("api/projects/{projectId:guid}/subtasks/{id:guid}", async (
+    [FromRoute] Guid projectId,
+    [FromRoute] Guid id,
+    [FromServices] IServiceManager serviceManager,
+    CancellationToken cancellationToken) =>
+{
+    var subtask = await serviceManager.SubtaskService
+    .GetSubtaskForProjectAsync(
+        projectId,
+        id,
+        trackChanges: false,
+        cancellationToken);
+
+    return Results.Ok(subtask);
 });
 
 app.Run();

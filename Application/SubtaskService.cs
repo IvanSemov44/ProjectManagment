@@ -32,5 +32,24 @@ namespace Application
 
             return response;
         }
+
+        public async Task<SubtaskResponse> GetSubtaskForProjectAsync(Guid projectId, Guid id, bool trackChanges, CancellationToken cancellationToken = default)
+        {
+            var project = await unitOfWork.ProjectRepository
+                .GetProjectAsync(projectId, trackChanges, cancellationToken)
+                ?? throw new ProjectNotFoundException(projectId);
+
+            var subtask = await unitOfWork.SubtaskRepository
+                .GetSubtaskForProjectAsync(projectId, id, trackChanges, cancellationToken)
+                ?? throw new SubtaskNotFoundException(id);
+
+            var response = new SubtaskResponse(
+                Id: subtask.Id,
+                Title: subtask.Title,
+                Description: subtask.Description,
+                IsCompleted: subtask.IsCompleted);
+
+            return response;
+        }
     }
 }
