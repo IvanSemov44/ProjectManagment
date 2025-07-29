@@ -15,5 +15,10 @@ namespace Application.Absrtactions
         Task<ProjectResponse> CreateProject(
             CreateProjectRequest request,
             CancellationToken cancellationToken = default);
+
+        Task UpdateProjectAsync(
+            Guid id,
+            UpdateProjectRequest request,
+            CancellationToken cancellationToken = default);
     }
 }

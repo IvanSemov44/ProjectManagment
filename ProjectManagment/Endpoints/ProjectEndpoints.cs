@@ -60,6 +60,26 @@ namespace ProjectManagement.Endpoints
                     value: project);
             });
 
+            routeBuilder.MapPut(route + "/{id:guid}", async (
+                [FromRoute] Guid id,
+                [FromBody] UpdateProjectRequest request,
+                [FromServices] IServiceManager serviceManager,
+                [FromServices] IValidator<UpdateProjectRequest> validator,
+                CancellationToken cancellationToken) =>
+            {
+                var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+                if (!validationResult.IsValid)
+                    return Results.ValidationProblem(
+                        validationResult.ToDictionary(),
+                        statusCode: StatusCodes.Status422UnprocessableEntity);
+
+                await serviceManager.ProjectService
+                .UpdateProjectAsync(id, request, cancellationToken);
+
+                return Results.NoContent();
+            });
+
         }
     }
 }

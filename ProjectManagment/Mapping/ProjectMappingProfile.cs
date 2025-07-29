@@ -10,6 +10,7 @@ namespace ProjectManagement.Mapping
         {
             CreateMap<Project, ProjectResponse>();
             CreateMap<CreateProjectRequest, Project>();
+            CreateMap<UpdateProjectRequest, Project>();
         }
     }
 }
