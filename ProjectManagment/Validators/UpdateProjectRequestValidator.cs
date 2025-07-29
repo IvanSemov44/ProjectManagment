@@ -16,6 +16,9 @@ namespace ProjectManagement.Validators
                 .NotEmpty()
                 .Length(15, 120)
                 .WithMessage("Project description must be between 15 and 120 characters long.");
+
+            RuleFor(x => x.Subtasks)
+                .ForEach(x => x.SetValidator(new CreateSubtaskRequestValidator()));
         }
     }
 }
