@@ -95,5 +95,31 @@ namespace Application
             unitOfWork.SubtaskRepository.DeleteSubtask(subtask);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task<(Subtask subtast, UpdateSubtaskRequest updateRequest)> GetSubtaskForPatchingAsync(
+            Guid projectId,
+            Guid id,
+            bool trackChanges,
+            CancellationToken cancellationToken = default)
+        {
+            _ = await unitOfWork.ProjectRepository
+                .GetProjectAsync(projectId, trackChanges: false, cancellationToken)
+                ?? throw new ProjectNotFoundException(projectId);
+
+            var subtask = await unitOfWork.SubtaskRepository
+                .GetSubtaskForProjectAsync(projectId, id, trackChanges, cancellationToken)
+                ?? throw new SubtaskNotFoundException(id);
+
+            var updateRequest = mapper.Map<UpdateSubtaskRequest>(subtask);
+
+            return new(subtask, updateRequest);
+        }
+
+        public async Task PatchSubtaskAsync(Subtask subtask, UpdateSubtaskRequest updateSubtask, CancellationToken cancellationToken = default)
+        {
+            mapper.Map(updateSubtask, subtask);
+
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
     }
 }

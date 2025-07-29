@@ -10,7 +10,7 @@ namespace ProjectManagement.Mapping
         {
             CreateMap<Subtask, SubtaskResponse>();
             CreateMap<CreateSubtaskRequest, Subtask>();
-            CreateMap<UpdateSubtaskRequest, Subtask>();
+            CreateMap<UpdateSubtaskRequest, Subtask>().ReverseMap();
         }
     }
 }

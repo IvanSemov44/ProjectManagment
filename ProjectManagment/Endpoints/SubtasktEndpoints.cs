@@ -1,8 +1,11 @@
 ﻿using Application.Absrtactions;
 using Contracts.Subtasks;
 using FluentValidation;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using ProjectManagement.Endpoints.Abstractions;
+using System.Text.Json;
 
 namespace ProjectManagement.Endpoints
 {
@@ -104,6 +107,61 @@ namespace ProjectManagement.Endpoints
             {
                 await serviceManager.SubtaskService
                 .DeleteSubtaskAsync(projectId, id, cancellationToken);
+
+                return Results.NoContent();
+            });
+
+            routeBuilder.MapPatch(routeWithSubtaskId, async (
+                [FromRoute] Guid projectId,
+                [FromRoute] Guid id,
+                [FromBody] JsonElement jsonElement,
+                [FromServices] IServiceManager serviceManager,
+                [FromServices] IValidator<UpdateSubtaskRequest> validator,
+                CancellationToken cancellationToken) =>
+            {
+                var patchDocument = JsonConvert
+                .DeserializeObject<JsonPatchDocument<UpdateSubtaskRequest>>(
+                    jsonElement.GetRawText());
+
+                if (patchDocument is null)
+                    return Results.BadRequest("Path document is null");
+
+                var (subtask, updateRequest) = await serviceManager.SubtaskService
+                .GetSubtaskForPatchingAsync(
+                    projectId,
+                    id,
+                    trackChanges: true,
+                    cancellationToken);
+
+
+                var errors = new List<string>();
+
+                patchDocument.ApplyTo(updateRequest, (error) =>
+                {
+                    errors.Add(error.ErrorMessage);
+                });
+
+                if (errors.Count != 0)
+                {
+                    var errorDict = new Dictionary<string, string[]>
+                    {
+                        { "binding errors" , errors.ToArray() }
+                    };
+
+                    return Results.ValidationProblem(
+                        errorDict,
+                        statusCode: StatusCodes.Status422UnprocessableEntity);
+                }
+
+                var validationResult = await validator.ValidateAsync(updateRequest, cancellationToken);
+
+                if (!validationResult.IsValid)
+                    return Results.ValidationProblem(
+                        validationResult.ToDictionary(),
+                        statusCode: StatusCodes.Status422UnprocessableEntity);
+
+                await serviceManager.SubtaskService
+                .PatchSubtaskAsync(subtask, updateRequest, cancellationToken);
 
                 return Results.NoContent();
             });

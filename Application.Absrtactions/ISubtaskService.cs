@@ -1,4 +1,5 @@
 ﻿using Contracts.Subtasks;
+using Domain;
 
 namespace Application.Absrtactions
 {
@@ -28,6 +29,17 @@ namespace Application.Absrtactions
         Task DeleteSubtaskAsync(
             Guid projectId,
             Guid id,
+            CancellationToken cancellationToken = default);
+
+        Task<(Subtask subtast, UpdateSubtaskRequest updateRequest)> GetSubtaskForPatchingAsync(
+            Guid projectId,
+            Guid id,
+            bool trackChanges,
+            CancellationToken cancellationToken = default);
+
+        Task PatchSubtaskAsync(
+            Subtask subtask,
+            UpdateSubtaskRequest updateSubtask,
             CancellationToken cancellationToken = default);
     }
 }
