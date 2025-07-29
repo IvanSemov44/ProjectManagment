@@ -20,5 +20,9 @@ namespace Application.Absrtactions
             Guid id,
             UpdateProjectRequest request,
             CancellationToken cancellationToken = default);
+
+        Task DeleteProjectAsync(
+            Guid id,
+            CancellationToken cancellationToken = default);
     }
 }

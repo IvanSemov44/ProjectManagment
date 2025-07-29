@@ -11,5 +11,7 @@
             CancellationToken cancellationToken);
 
         void CreateProject(Project project);
+
+        void DeleteProject(Project project);
     }
 }

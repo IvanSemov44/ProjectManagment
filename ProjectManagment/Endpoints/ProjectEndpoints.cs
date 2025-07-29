@@ -8,6 +8,7 @@ namespace ProjectManagement.Endpoints
     public static class ProjectEndpoints
     {
         const string route = "api/projects";
+        const string routeWithId = route + "/{id:guid}";
         public static void RegisterProjectEndpoints(
             this IEndpointRouteBuilder routeBuilder)
         {
@@ -21,7 +22,7 @@ namespace ProjectManagement.Endpoints
                 return Results.Ok(projects);
             });
 
-            routeBuilder.MapGet(route + "/{id:guid}", async (
+            routeBuilder.MapGet(routeWithId, async (
                 [FromRoute] Guid id,
                 [FromServices] IServiceManager serviceManager,
                 CancellationToken cancellationToken) =>
@@ -60,7 +61,7 @@ namespace ProjectManagement.Endpoints
                     value: project);
             });
 
-            routeBuilder.MapPut(route + "/{id:guid}", async (
+            routeBuilder.MapPut(routeWithId, async (
                 [FromRoute] Guid id,
                 [FromBody] UpdateProjectRequest request,
                 [FromServices] IServiceManager serviceManager,
@@ -80,6 +81,16 @@ namespace ProjectManagement.Endpoints
                 return Results.NoContent();
             });
 
+            routeBuilder.MapDelete(routeWithId, async (
+                [FromRoute] Guid id,
+                [FromServices] IServiceManager serviceManager,
+                CancellationToken cancellationToken) =>
+            {
+                await serviceManager.ProjectService
+                .DeleteProjectAsync(id, cancellationToken);
+
+                return Results.NoContent();
+            });
         }
     }
 }

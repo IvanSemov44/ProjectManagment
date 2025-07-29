@@ -23,5 +23,9 @@ namespace Infrastructure.Repositories
             Insert(project);
         }
 
+        public void DeleteProject(Project project)
+        {
+            Remove(project);
+        }
     }
 }

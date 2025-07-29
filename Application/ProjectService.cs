@@ -59,5 +59,17 @@ namespace Application
 
             await unitOfWork.SaveChangesAsync();
         }
+
+        public async Task DeleteProjectAsync(
+            Guid id,
+            CancellationToken cancellationToken)
+        {
+            var project = await unitOfWork.ProjectRepository
+                .GetProjectAsync(id, trackChanges: false, cancellationToken)
+                ?? throw new ProjectNotFoundException(id);
+
+            unitOfWork.ProjectRepository.DeleteProject(project);
+            await unitOfWork.SaveChangesAsync();
+        }
     }
 }
