@@ -59,5 +59,25 @@ namespace Application
 
             return response;
         }
+
+        public async Task UpdateSubtaskAsync(
+            Guid projectId,
+            Guid id,
+            UpdateSubtaskRequest request,
+            CancellationToken cancellationToken)
+        {
+            _ = await unitOfWork.ProjectRepository
+                .GetProjectAsync(projectId, trackChanges: false, cancellationToken)
+                ?? throw new ProjectNotFoundException(projectId);
+
+            var subtask = await unitOfWork.SubtaskRepository
+                .GetSubtaskForProjectAsync(projectId, id, trackChanges: true, cancellationToken)
+                ?? throw new SubtaskNotFoundException(id);
+
+            mapper.Map(request, subtask);
+
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        }
     }
 }

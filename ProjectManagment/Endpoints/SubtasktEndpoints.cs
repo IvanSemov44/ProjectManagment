@@ -68,6 +68,32 @@ namespace ProjectManagement.Endpoints
                     },
                     value: subtask);
             });
+
+            routeBuilder.MapPut(route + "/{id:guid}", async (
+                [FromRoute] Guid projectId,
+                [FromRoute] Guid id,
+                [FromBody] UpdateSubtaskRequest request,
+                [FromServices] IServiceManager serviceManager,
+                [FromServices] IValidator<UpdateSubtaskRequest> validator,
+                CancellationToken cancellationToken
+                ) =>
+            {
+                var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+                if (!validationResult.IsValid)
+                    return Results.ValidationProblem(
+                        validationResult.ToDictionary(),
+                        statusCode: StatusCodes.Status422UnprocessableEntity);
+
+                await serviceManager.SubtaskService
+                .UpdateSubtaskAsync(
+                    projectId,
+                    id,
+                    request,
+                    cancellationToken);
+
+                return Results.NoContent();
+            });
         }
     }
 }
