@@ -15,6 +15,7 @@ using ProjectManagement.Endpoints;
 using ProjectManagement.Endpoints.Extensions;
 using ProjectManagement.Middleware;
 using ProjectManagement.Validators;
+using Microsoft.OpenApi.Models;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,6 +43,27 @@ builder.Services.AddDbContext<ApplicationDbContext>(
         connectionString,
         x => x.MigrationsAssembly("ProjectManagement")));
 
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Project Management Api",
+        Version = "v1",
+        Description = "Api for managing projects and related subtasks",
+        Contact = new OpenApiContact
+        {
+            Name = "Code Maze",
+            Email = "info@code-maze.com"
+        },
+        License = new OpenApiLicense
+        {
+            Name = "MIT",
+            Url = new Uri("https://opensoure.org/licenses/MIT")
+        }
+    });
+});
+builder.Services.AddEndpointsApiExplorer();
+
 builder.Host.UseSerilog((hostContext, configuration) =>
 {
     configuration.ReadFrom.Configuration(hostContext.Configuration);
@@ -52,6 +74,9 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
 app.UseExceptionHandler();
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.RegisterProjectEndpoints();
 app.RegisterMinimalEndpoints();
