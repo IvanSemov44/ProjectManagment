@@ -1,4 +1,5 @@
 using Serilog;
+using FluentValidation;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -13,8 +14,6 @@ using LoggingService;
 using ProjectManagement.Endpoints;
 using ProjectManagement.Endpoints.Extensions;
 using ProjectManagement.Middleware;
-using FluentValidation;
-using Contracts.Projects;
 using ProjectManagement.Validators;
 
 

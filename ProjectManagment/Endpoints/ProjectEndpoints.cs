@@ -99,6 +99,7 @@ namespace ProjectManagement.Endpoints
                 [FromRoute] Guid id,
                 [FromBody] JsonElement jsonElement,
                 [FromServices] IServiceManager serviceManager,
+                [FromServices] IValidator<UpdateProjectRequest> validator,
                 CancellationToken cancellationToken) =>
             {
                 var patchDocument = JsonConvert
@@ -111,7 +112,30 @@ namespace ProjectManagement.Endpoints
                 var (project, updateRequest) = await serviceManager.ProjectService
                 .GetProjectForPatchingAsync(id, trackChanges: true, cancellationToken);
 
-                patchDocument.ApplyTo(updateRequest);
+                var errors = new List<string>();
+
+                patchDocument.ApplyTo(updateRequest, (error) =>
+                {
+                    errors.Add(error.ErrorMessage);
+                });
+
+                if (errors.Count != 0)
+                {
+                    var errorsDict = new Dictionary<string, string[]>
+                    {
+                        {"binding errors",errors.ToArray() }
+                    };
+
+                    return Results.ValidationProblem(errorsDict,
+                        statusCode: StatusCodes.Status422UnprocessableEntity);
+                }
+
+                var validationResult = await validator.ValidateAsync(updateRequest, cancellationToken);
+
+                if (!validationResult.IsValid)
+                    return Results.ValidationProblem(
+                        validationResult.ToDictionary(),
+                        statusCode: StatusCodes.Status422UnprocessableEntity);
 
                 await serviceManager.ProjectService
                 .PatchProjectAsync(project, updateRequest, cancellationToken);
