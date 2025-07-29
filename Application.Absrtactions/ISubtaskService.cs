@@ -24,5 +24,10 @@ namespace Application.Absrtactions
             Guid id,
             UpdateSubtaskRequest request,
             CancellationToken cancellationToken);
+
+        Task DeleteSubtaskAsync(
+            Guid projectId,
+            Guid id,
+            CancellationToken cancellationToken = default);
     }
 }

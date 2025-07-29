@@ -77,7 +77,23 @@ namespace Application
             mapper.Map(request, subtask);
 
             await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
 
+        public async Task DeleteSubtaskAsync(
+            Guid projectId,
+            Guid id,
+            CancellationToken cancellationToken)
+        {
+            _ = await unitOfWork.ProjectRepository
+                .GetProjectAsync(projectId, trackChanges: false, cancellationToken)
+                ?? throw new ProjectNotFoundException(projectId);
+
+            var subtask = await unitOfWork.SubtaskRepository
+                .GetSubtaskForProjectAsync(projectId, id, trackChanges: false, cancellationToken)
+                ?? throw new SubtaskNotFoundException(id);
+
+            unitOfWork.SubtaskRepository.DeleteSubtask(subtask);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
 }

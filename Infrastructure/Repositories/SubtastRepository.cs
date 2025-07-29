@@ -27,5 +27,10 @@ namespace Infrastructure.Repositories
         {
             Insert(subtask);
         }
+
+        public void DeleteSubtask(Subtask subtask)
+        {
+            Remove(subtask);
+        }
     }
 }

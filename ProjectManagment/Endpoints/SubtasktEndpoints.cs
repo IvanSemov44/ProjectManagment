@@ -9,6 +9,7 @@ namespace ProjectManagement.Endpoints
     public class SubtasktEndpoints : IMinimalEndpoint
     {
         const string route = "api/projects/{projectId:guid}/subtasks";
+        const string routeWithSubtaskId = route + "/{id:guid}";
         public void MapEndpoints(IEndpointRouteBuilder routeBuilder)
         {
 
@@ -23,7 +24,7 @@ namespace ProjectManagement.Endpoints
                 return Results.Ok(subtastks);
             });
 
-            routeBuilder.MapGet(route + "/{id:guid}", async (
+            routeBuilder.MapGet(routeWithSubtaskId, async (
                 [FromRoute] Guid projectId,
                 [FromRoute] Guid id,
                 [FromServices] IServiceManager serviceManager,
@@ -69,7 +70,7 @@ namespace ProjectManagement.Endpoints
                     value: subtask);
             });
 
-            routeBuilder.MapPut(route + "/{id:guid}", async (
+            routeBuilder.MapPut(routeWithSubtaskId, async (
                 [FromRoute] Guid projectId,
                 [FromRoute] Guid id,
                 [FromBody] UpdateSubtaskRequest request,
@@ -91,6 +92,18 @@ namespace ProjectManagement.Endpoints
                     id,
                     request,
                     cancellationToken);
+
+                return Results.NoContent();
+            });
+
+            routeBuilder.MapDelete(routeWithSubtaskId, async (
+                [FromRoute] Guid projectId,
+                [FromRoute] Guid id,
+                [FromServices] IServiceManager serviceManager,
+                CancellationToken cancellationToken) =>
+            {
+                await serviceManager.SubtaskService
+                .DeleteSubtaskAsync(projectId, id, cancellationToken);
 
                 return Results.NoContent();
             });

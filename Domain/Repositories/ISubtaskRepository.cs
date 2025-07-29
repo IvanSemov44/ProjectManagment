@@ -13,5 +13,7 @@
             CancellationToken cancellationToken = default);
 
         void CreateSubtask(Subtask subtask);
+
+        void DeleteSubtask(Subtask subtask);
     }
 }

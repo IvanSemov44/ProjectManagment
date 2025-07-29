@@ -2,8 +2,5 @@
 
 namespace Contracts.Projects
 {
-    public record UpdateProjectRequest(
-        string Name,
-        string Description,
-        IEnumerable<CreateSubtaskRequest> Subtasks);
+    public record UpdateProjectRequest : BaseProjectRequest;
 }

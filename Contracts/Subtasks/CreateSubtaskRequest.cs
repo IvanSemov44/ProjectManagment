@@ -1,6 +1,4 @@
 ﻿namespace Contracts.Subtasks
 {
-    public record CreateSubtaskRequest(
-        string Title,
-        string Description);
+    public record CreateSubtaskRequest : BaseSubtaskRequest;
 }
