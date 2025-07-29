@@ -71,5 +71,28 @@ namespace Application
             unitOfWork.ProjectRepository.DeleteProject(project);
             await unitOfWork.SaveChangesAsync();
         }
+
+        public async Task<(Project project, UpdateProjectRequest updateProject)> GetProjectForPatchingAsync(
+            Guid id,
+            bool trackChanges,
+            CancellationToken cancellationToken = default)
+        {
+            var project = await unitOfWork.ProjectRepository
+                .GetProjectAsync(id, trackChanges, cancellationToken)
+                ?? throw new ProjectNotFoundException(id);
+
+            var updateProject = mapper.Map<UpdateProjectRequest>(project);
+
+            return new(project, updateProject);
+        }
+
+        public async Task PatchProjectAsync(
+            Project project,
+            UpdateProjectRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            mapper.Map(request, project);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Contracts.Projects;
+using Domain;
 
 namespace Application.Absrtactions
 {
@@ -23,6 +24,16 @@ namespace Application.Absrtactions
 
         Task DeleteProjectAsync(
             Guid id,
+            CancellationToken cancellationToken = default);
+
+        Task<(Project project, UpdateProjectRequest updateProject)> GetProjectForPatchingAsync(
+            Guid id,
+            bool trackChanges,
+            CancellationToken cancellationToken = default);
+
+        Task PatchProjectAsync(
+            Project project,
+            UpdateProjectRequest request,
             CancellationToken cancellationToken = default);
     }
 }

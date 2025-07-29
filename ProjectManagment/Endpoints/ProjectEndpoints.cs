@@ -1,7 +1,10 @@
 ﻿using Application.Absrtactions;
 using Contracts.Projects;
 using FluentValidation;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace ProjectManagement.Endpoints
 {
@@ -88,6 +91,30 @@ namespace ProjectManagement.Endpoints
             {
                 await serviceManager.ProjectService
                 .DeleteProjectAsync(id, cancellationToken);
+
+                return Results.NoContent();
+            });
+
+            routeBuilder.MapPatch(routeWithId, async (
+                [FromRoute] Guid id,
+                [FromBody] JsonElement jsonElement,
+                [FromServices] IServiceManager serviceManager,
+                CancellationToken cancellationToken) =>
+            {
+                var patchDocument = JsonConvert
+                .DeserializeObject<JsonPatchDocument<UpdateProjectRequest>>(
+                    jsonElement.GetRawText());
+
+                if (patchDocument is null)
+                    return Results.BadRequest("Patch document object is null");
+
+                var (project, updateRequest) = await serviceManager.ProjectService
+                .GetProjectForPatchingAsync(id, trackChanges: true, cancellationToken);
+
+                patchDocument.ApplyTo(updateRequest);
+
+                await serviceManager.ProjectService
+                .PatchProjectAsync(project, updateRequest, cancellationToken);
 
                 return Results.NoContent();
             });
