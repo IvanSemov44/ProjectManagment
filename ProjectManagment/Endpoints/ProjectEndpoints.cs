@@ -1,5 +1,6 @@
 ﻿using Application.Absrtactions;
 using Contracts.Projects;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ProjectManagement.Endpoints
@@ -38,8 +39,18 @@ namespace ProjectManagement.Endpoints
             routeBuilder.MapPost(route, async (
                 [FromBody] CreateProjectRequest request,
                 [FromServices] IServiceManager serviceManager,
+                [FromServices] IValidator<CreateProjectRequest> validator,
                 CancellationToken cancellationToken) =>
             {
+                var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+                if (!validationResult.IsValid)
+                {
+                    return Results.ValidationProblem(
+                        validationResult.ToDictionary(),
+                        statusCode: StatusCodes.Status422UnprocessableEntity);
+                }
+
                 var project = await serviceManager.ProjectService
                 .CreateProject(request, cancellationToken);
 

@@ -1,5 +1,6 @@
 ﻿using Application.Absrtactions;
 using Contracts.Subtasks;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.Endpoints.Abstractions;
 
@@ -43,8 +44,18 @@ namespace ProjectManagement.Endpoints
                 [FromRoute] Guid projectId,
                 [FromBody] CreateSubtaskRequest request,
                 [FromServices] IServiceManager serviceManager,
+                [FromServices] IValidator<CreateSubtaskRequest> validator,
                 CancellationToken cancellationToken) =>
             {
+                var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+                if (!validationResult.IsValid)
+                {
+                    return Results.ValidationProblem(
+                        validationResult.ToDictionary(),
+                        statusCode: StatusCodes.Status422UnprocessableEntity);
+                }
+
                 var subtask = await serviceManager.SubtaskService
                 .CreateSubtaskAsync(projectId, request, cancellationToken);
 

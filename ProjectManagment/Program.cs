@@ -13,6 +13,9 @@ using LoggingService;
 using ProjectManagement.Endpoints;
 using ProjectManagement.Endpoints.Extensions;
 using ProjectManagement.Middleware;
+using FluentValidation;
+using Contracts.Projects;
+using ProjectManagement.Validators;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +30,8 @@ builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddAutoMapper(typeof(Program));
+
+builder.Services.AddValidatorsFromAssemblyContaining(typeof(CreateProjectRequestValidator));
 
 builder.Services.AddMinimalEndpoints();
 
