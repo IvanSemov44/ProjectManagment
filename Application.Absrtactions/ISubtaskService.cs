@@ -5,8 +5,10 @@ namespace Application.Absrtactions
 {
     public interface ISubtaskService
     {
-        Task<IEnumerable<SubtaskResponse>> GetAllSubtasksForProjectAsync(
+        Task<PagedList<SubtaskResponse>> GetPagedSubtasksForProjectAsync(
             Guid projectId,
+            int page,
+            int pageSize,
             CancellationToken cancellationToken = default);
 
         Task<SubtaskResponse> GetSubtaskForProjectAsync(

@@ -10,7 +10,7 @@ namespace Application
     public sealed class SubtaskService(ICustomLogger logger, IUnitOfWork unitOfWork, IMapper mapper)
         : ISubtaskService
     {
-        public async Task<IEnumerable<SubtaskResponse>> GetAllSubtasksForProjectAsync(Guid projectId, CancellationToken cancellationToken = default)
+        public async Task<PagedList<SubtaskResponse>> GetPagedSubtasksForProjectAsync(Guid projectId, int page, int pageSize, CancellationToken cancellationToken = default)
         {
             var project = await unitOfWork.ProjectRepository
                 .GetProjectAsync(projectId, trackChanges: false, cancellationToken)
@@ -18,9 +18,9 @@ namespace Application
 
 
             var subtasks = await unitOfWork.SubtaskRepository
-                .GetAllSubtasksForProjectAsync(projectId, cancellationToken);
+                .GetPagedSubtasksForProjectAsync(projectId, page, pageSize, cancellationToken);
 
-            var response = mapper.Map<IEnumerable<SubtaskResponse>>(subtasks);
+            var response = mapper.Map<PagedList<SubtaskResponse>>(subtasks);
 
             return response;
         }

@@ -5,7 +5,9 @@ namespace Application.Absrtactions
 {
     public interface IProjectService
     {
-        Task<IEnumerable<ProjectResponse>> GetAllProjectsAsync(
+        Task<PagedList<ProjectResponse>> GetPagedProjectsAsync(
+            int page,
+            int pageSize,
             CancellationToken cancellationToken = default);
 
         Task<ProjectResponse> GetProjectAsync(

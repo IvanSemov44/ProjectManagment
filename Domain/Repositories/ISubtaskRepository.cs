@@ -8,8 +8,10 @@
             bool trackChanges,
             CancellationToken cancellationToken = default);
 
-        Task<IEnumerable<Subtask>> GetAllSubtasksForProjectAsync(
+        Task<PagedList<Subtask>> GetPagedSubtasksForProjectAsync(
             Guid projectId,
+            int page,
+            int pageSize,
             CancellationToken cancellationToken = default);
 
         void CreateSubtask(Subtask subtask);

@@ -12,11 +12,14 @@ namespace Application
         : IProjectService
     {
 
-        public async Task<IEnumerable<ProjectResponse>> GetAllProjectsAsync(CancellationToken cancellationToken = default)
+        public async Task<PagedList<ProjectResponse>> GetPagedProjectsAsync(
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default)
         {
-            var projects = await unitOfWork.ProjectRepository.GetAllProjectsAsync(cancellationToken);
+            var projects = await unitOfWork.ProjectRepository.GetPagedProjectsAsync(page,pageSize,cancellationToken);
 
-            var response = mapper.Map<IEnumerable<ProjectResponse>>(projects);
+            var response = mapper.Map<PagedList<ProjectResponse>>(projects);
 
             return response;
         }

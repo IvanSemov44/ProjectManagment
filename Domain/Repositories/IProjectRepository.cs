@@ -2,7 +2,9 @@
 {
     public interface IProjectRepository
     {
-        Task<IEnumerable<Project>> GetAllProjectsAsync(
+        Task<PagedList<Project>> GetPagedProjectsAsync(
+            int page,
+            int pageSize,
             CancellationToken cancellationToken = default);
 
         Task<Project?> GetProjectAsync(

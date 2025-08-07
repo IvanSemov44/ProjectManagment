@@ -7,9 +7,20 @@ namespace Infrastructure.Repositories
     public sealed class ProjectRepository(ApplicationDbContext context)
         : BaseRepository<Project>(context), IProjectRepository
     {
-        public async Task<IEnumerable<Project>> GetAllProjectsAsync(CancellationToken cancellationToken = default)
+        public async Task<PagedList<Project>> GetPagedProjectsAsync(
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default)
         {
-            return await GetAll().ToListAsync();
+            var totalCount = await GetAll().CountAsync(cancellationToken);
+
+            var pagedProjects = await GetAll()
+                .OrderBy(p => p.Name)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return new PagedList<Project>(pagedProjects, page, pageSize, totalCount);
         }
 
         public async Task<Project?> GetProjectAsync(Guid id, bool trackChanges, CancellationToken cancellationToken)
