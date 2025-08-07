@@ -35,6 +35,16 @@ builder.Services.AddValidatorsFromAssemblyContaining(typeof(CreateProjectRequest
 
 builder.Services.AddMinimalEndpoints();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnectionString");
 
 
@@ -72,13 +82,16 @@ builder.Host.UseSerilog((hostContext, configuration) =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseExceptionHandler();
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
+app.UseCors("AllowAll");
+
 app.RegisterProjectEndpoints();
 app.RegisterMinimalEndpoints();
+
 
 app.Run();

@@ -1,6 +1,7 @@
 ﻿using Application.Absrtactions;
 using Contracts.Subtasks;
 using FluentValidation;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -25,7 +26,8 @@ namespace ProjectManagement.Endpoints
                 .GetAllSubtasksForProjectAsync(projectId, cancellationToken);
 
                 return Results.Ok(subtastks);
-            });
+            })
+            .Produces<IEnumerable<SubtaskResponse>>();
 
             routeBuilder.MapGet(routeWithSubtaskId, async (
                 [FromRoute] Guid projectId,
@@ -42,7 +44,9 @@ namespace ProjectManagement.Endpoints
 
                 return Results.Ok(subtask);
             })
-                .WithName("GetSubtaskById");
+            .Produces<SubtaskResponse>()
+            .Produces(StatusCodes.Status404NotFound)
+            .WithName("GetSubtaskById");
 
             routeBuilder.MapPost(route, async (
                 [FromRoute] Guid projectId,
@@ -71,7 +75,9 @@ namespace ProjectManagement.Endpoints
                         id = subtask.Id
                     },
                     value: subtask);
-            });
+            })
+            .Produces<SubtaskResponse>(StatusCodes.Status201Created)
+            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
 
             routeBuilder.MapPut(routeWithSubtaskId, async (
                 [FromRoute] Guid projectId,
@@ -97,7 +103,10 @@ namespace ProjectManagement.Endpoints
                     cancellationToken);
 
                 return Results.NoContent();
-            });
+            })
+            .Produces(StatusCodes.Status201Created)
+            .Produces(StatusCodes.Status404NotFound)
+            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
 
             routeBuilder.MapDelete(routeWithSubtaskId, async (
                 [FromRoute] Guid projectId,
@@ -109,7 +118,9 @@ namespace ProjectManagement.Endpoints
                 .DeleteSubtaskAsync(projectId, id, cancellationToken);
 
                 return Results.NoContent();
-            });
+            })
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound);
 
             routeBuilder.MapPatch(routeWithSubtaskId, async (
                 [FromRoute] Guid projectId,
@@ -145,11 +156,10 @@ namespace ProjectManagement.Endpoints
                 {
                     var errorDict = new Dictionary<string, string[]>
                     {
-                        { "binding errors" , errors.ToArray() }
+                        { "model-binding errors" , errors.ToArray() }
                     };
 
-                    return Results.ValidationProblem(
-                        errorDict,
+                    return Results.ValidationProblem(errorDict,
                         statusCode: StatusCodes.Status422UnprocessableEntity);
                 }
 
@@ -164,7 +174,11 @@ namespace ProjectManagement.Endpoints
                 .PatchSubtaskAsync(subtask, updateRequest, cancellationToken);
 
                 return Results.NoContent();
-            });
+            })
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
         }
     }
 }
