@@ -4,6 +4,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using ProjectManagement.Middleware;
 using System.Text.Json;
 
 namespace ProjectManagement.Endpoints
@@ -47,18 +48,8 @@ namespace ProjectManagement.Endpoints
             routeBuilder.MapPost(route, async (
                 [FromBody] CreateProjectRequest request,
                 [FromServices] IServiceManager serviceManager,
-                [FromServices] IValidator<CreateProjectRequest> validator,
                 CancellationToken cancellationToken) =>
             {
-                var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-                if (!validationResult.IsValid)
-                {
-                    return Results.ValidationProblem(
-                        validationResult.ToDictionary(),
-                        statusCode: StatusCodes.Status422UnprocessableEntity);
-                }
-
                 var project = await serviceManager.ProjectService
                 .CreateProject(request, cancellationToken);
 
@@ -67,6 +58,7 @@ namespace ProjectManagement.Endpoints
                     routeValues: new { id = project.Id },
                     value: project);
             })
+            .AddEndpointFilter<ValidationFilter<CreateProjectRequest>>()
             .Produces<ProjectResponse>(StatusCodes.Status201Created)
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
 
@@ -74,24 +66,17 @@ namespace ProjectManagement.Endpoints
                 [FromRoute] Guid id,
                 [FromBody] UpdateProjectRequest request,
                 [FromServices] IServiceManager serviceManager,
-                [FromServices] IValidator<UpdateProjectRequest> validator,
                 CancellationToken cancellationToken) =>
             {
-                var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-                if (!validationResult.IsValid)
-                    return Results.ValidationProblem(
-                        validationResult.ToDictionary(),
-                        statusCode: StatusCodes.Status422UnprocessableEntity);
-
                 await serviceManager.ProjectService
                 .UpdateProjectAsync(id, request, cancellationToken);
 
                 return Results.NoContent();
             })
-                .Produces(StatusCodes.Status204NoContent)
-                .Produces(StatusCodes.Status404NotFound)
-                .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+            .AddEndpointFilter<ValidationFilter<UpdateProjectRequest>>()
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound)
+            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
 
             routeBuilder.MapDelete(routeWithId, async (
                 [FromRoute] Guid id,

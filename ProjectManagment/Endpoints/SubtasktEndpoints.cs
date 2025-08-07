@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using ProjectManagement.Endpoints.Abstractions;
+using ProjectManagement.Middleware;
 using System.Text.Json;
 
 namespace ProjectManagement.Endpoints
@@ -52,18 +53,8 @@ namespace ProjectManagement.Endpoints
                 [FromRoute] Guid projectId,
                 [FromBody] CreateSubtaskRequest request,
                 [FromServices] IServiceManager serviceManager,
-                [FromServices] IValidator<CreateSubtaskRequest> validator,
                 CancellationToken cancellationToken) =>
             {
-                var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-                if (!validationResult.IsValid)
-                {
-                    return Results.ValidationProblem(
-                        validationResult.ToDictionary(),
-                        statusCode: StatusCodes.Status422UnprocessableEntity);
-                }
-
                 var subtask = await serviceManager.SubtaskService
                 .CreateSubtaskAsync(projectId, request, cancellationToken);
 
@@ -76,6 +67,7 @@ namespace ProjectManagement.Endpoints
                     },
                     value: subtask);
             })
+            .AddEndpointFilter<ValidationFilter<CreateSubtaskRequest>>()
             .Produces<SubtaskResponse>(StatusCodes.Status201Created)
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
 
@@ -84,17 +76,9 @@ namespace ProjectManagement.Endpoints
                 [FromRoute] Guid id,
                 [FromBody] UpdateSubtaskRequest request,
                 [FromServices] IServiceManager serviceManager,
-                [FromServices] IValidator<UpdateSubtaskRequest> validator,
                 CancellationToken cancellationToken
                 ) =>
             {
-                var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-                if (!validationResult.IsValid)
-                    return Results.ValidationProblem(
-                        validationResult.ToDictionary(),
-                        statusCode: StatusCodes.Status422UnprocessableEntity);
-
                 await serviceManager.SubtaskService
                 .UpdateSubtaskAsync(
                     projectId,
@@ -104,6 +88,7 @@ namespace ProjectManagement.Endpoints
 
                 return Results.NoContent();
             })
+            .AddEndpointFilter<ValidationFilter<UpdateSubtaskRequest>>()
             .Produces(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status404NotFound)
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
