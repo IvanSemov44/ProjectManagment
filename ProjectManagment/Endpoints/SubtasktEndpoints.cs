@@ -31,7 +31,8 @@ namespace ProjectManagement.Endpoints
 
                 return Results.Ok(subtastks);
             })
-            .Produces<PagedList<SubtaskResponse>>();
+            .Produces<PagedList<SubtaskResponse>>()
+            .WithName(SubtaskConstants.GetAllSubtasks);
 
             routeBuilder.MapGet(routeWithSubtaskId, async (
                 [FromRoute] Guid projectId,

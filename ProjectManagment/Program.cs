@@ -22,7 +22,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ILinkService, LinkService>();
 builder.Services.AddScoped<IServiceManager, ServiceManager>();
 builder.Services.AddSingleton<ICustomLogger, CustomLogger>();
 

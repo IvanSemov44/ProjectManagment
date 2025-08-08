@@ -1,19 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Application.Absrtactions\Application.Absrtactions.csproj" />
-    <ProjectReference Include="..\Contracts\Contracts.csproj" />
-    <ProjectReference Include="..\Domain\Domain.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App"/>
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="13.0.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Application.Absrtactions\Application.Absrtactions.csproj" />
+		<ProjectReference Include="..\Contracts\Contracts.csproj" />
+		<ProjectReference Include="..\Domain\Domain.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="13.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Routing.Abstractions" Version="2.3.0" />
+	</ItemGroup>
 
 </Project>

@@ -5,11 +5,11 @@ using Domain;
 
 namespace Application
 {
-    public class ServiceManager(ICustomLogger logger, IUnitOfWork unitOfWork, IMapper mapper)
+    public class ServiceManager(ICustomLogger logger, IUnitOfWork unitOfWork, IMapper mapper, ILinkService linkService)
         : IServiceManager
     {
         private readonly Lazy<IProjectService> _projectService = new(()
-            => new ProjectService(logger, unitOfWork, mapper));
+            => new ProjectService(logger, unitOfWork, mapper, linkService));
         private readonly Lazy<ISubtaskService> _subtaskService = new(()
             => new SubtaskService(logger, unitOfWork, mapper));
         public IProjectService ProjectService => _projectService.Value;

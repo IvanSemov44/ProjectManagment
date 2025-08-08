@@ -30,7 +30,8 @@ namespace ProjectManagement.Endpoints
 
                 return Results.Ok(projects);
             })
-            .Produces<PagedList<ProjectResponse>>();
+            .Produces<PagedList<ProjectResponse>>()
+            .WithName(ProjectConstants.GetAllProjects);
 
             routeBuilder.MapGet(routeWithId, async (
                 [FromRoute] Guid id,
@@ -47,7 +48,7 @@ namespace ProjectManagement.Endpoints
             })
             .Produces<ProjectResponse>()
             .Produces(StatusCodes.Status404NotFound)
-            .WithName("GetProjectById");
+            .WithName(ProjectConstants.GetProjectById);
 
             routeBuilder.MapPost(route, async (
                 [FromBody] CreateProjectRequest request,
@@ -64,7 +65,8 @@ namespace ProjectManagement.Endpoints
             })
             .AddEndpointFilter<ValidationFilter<CreateProjectRequest>>()
             .Produces<ProjectResponse>(StatusCodes.Status201Created)
-            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
+            .WithName(ProjectConstants.CreateProject);
 
             routeBuilder.MapPut(routeWithId, async (
                 [FromRoute] Guid id,
@@ -80,7 +82,8 @@ namespace ProjectManagement.Endpoints
             .AddEndpointFilter<ValidationFilter<UpdateProjectRequest>>()
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
-            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
+            .WithName(ProjectConstants.UpdateProject);
 
             routeBuilder.MapDelete(routeWithId, async (
                 [FromRoute] Guid id,
@@ -93,7 +96,8 @@ namespace ProjectManagement.Endpoints
                 return Results.NoContent();
             })
             .Produces(StatusCodes.Status204NoContent)
-            .Produces(StatusCodes.Status404NotFound);
+            .Produces(StatusCodes.Status404NotFound)
+            .WithName(ProjectConstants.DeleteProject);
 
             routeBuilder.MapPatch(routeWithId, async (
                 [FromRoute] Guid id,
@@ -145,7 +149,8 @@ namespace ProjectManagement.Endpoints
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
+            .WithName(ProjectConstants.PatchProject);
         }
     }
 }
