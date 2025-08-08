@@ -10,6 +10,7 @@ namespace Application.Absrtactions
             int page,
             int pageSize,
             string? title,
+            string? searchTerm,
             CancellationToken cancellationToken = default);
 
         Task<SubtaskResponse> GetSubtaskForProjectAsync(

@@ -20,6 +20,7 @@ namespace ProjectManagement.Endpoints
 
             routeBuilder.MapGet(route, async (
                 [FromQuery] string? name,
+                [FromQuery] string? searchTerm,
                 [FromServices] IServiceManager serviceManager,
                 CancellationToken cancellationToken,
                 [FromQuery] int page = 1,
@@ -27,7 +28,7 @@ namespace ProjectManagement.Endpoints
                 ) =>
             {
                 var projects = await serviceManager.ProjectService
-                .GetPagedProjectsAsync(page, pageSize, name, cancellationToken);
+                .GetPagedProjectsAsync(page, pageSize, name, searchTerm, cancellationToken);
 
                 return Results.Ok(projects);
             })

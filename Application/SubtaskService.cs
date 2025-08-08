@@ -15,6 +15,7 @@ namespace Application
             int page,
             int pageSize,
             string? title,
+            string? searchTerm,
             CancellationToken cancellationToken = default)
         {
             var project = await unitOfWork.ProjectRepository
@@ -23,7 +24,7 @@ namespace Application
 
 
             var subtasks = await unitOfWork.SubtaskRepository
-                .GetPagedSubtasksForProjectAsync(projectId, page, pageSize, title, cancellationToken);
+                .GetPagedSubtasksForProjectAsync(projectId, page, pageSize, title, searchTerm, cancellationToken);
 
             var response = mapper.Map<PagedList<SubtaskResponse>>(subtasks);
 

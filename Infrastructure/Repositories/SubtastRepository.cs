@@ -1,5 +1,6 @@
 ﻿using Domain;
 using Domain.Repositories;
+using Infrastructure.Repositories.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
@@ -12,15 +13,12 @@ namespace Infrastructure.Repositories
             int page,
             int pageSize,
             string? title,
+            string? searchTerm,
             CancellationToken cancellationToken = default)
         {
-            var query = GetByCondition(x => x.ProjectId.Equals(projectId), trackChanges: false);
-
-            if (!string.IsNullOrWhiteSpace(title))
-            {
-                query = query.Where(s => s.Title.Contains(title));
-            }
-
+            var query = GetByCondition(x => x.ProjectId.Equals(projectId), trackChanges: false)
+                .Filter(title)
+                .Search(searchTerm);
 
             var totalCount = await query.CountAsync(cancellationToken);
 

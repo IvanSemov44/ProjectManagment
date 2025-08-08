@@ -13,6 +13,7 @@
             int page,
             int pageSize,
             string? title,
+            string? searchTerm,
             CancellationToken cancellationToken = default);
 
         void CreateSubtask(Subtask subtask);

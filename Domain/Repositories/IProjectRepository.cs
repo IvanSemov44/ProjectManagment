@@ -6,6 +6,7 @@
             int page,
             int pageSize,
             string? name,
+            string? searchTerm,
             CancellationToken cancellationToken = default);
 
         Task<Project?> GetProjectAsync(

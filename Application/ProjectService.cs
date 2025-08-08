@@ -16,9 +16,10 @@ namespace Application
             int page,
             int pageSize,
             string? name,
+            string? searchTerm,
             CancellationToken cancellationToken = default)
         {
-            var projects = await unitOfWork.ProjectRepository.GetPagedProjectsAsync(page, pageSize, name, cancellationToken);
+            var projects = await unitOfWork.ProjectRepository.GetPagedProjectsAsync(page, pageSize, name, searchTerm, cancellationToken);
 
             var response = mapper.Map<PagedList<ProjectResponse>>(projects);
 

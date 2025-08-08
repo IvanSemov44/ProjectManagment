@@ -22,13 +22,14 @@ namespace ProjectManagement.Endpoints
             routeBuilder.MapGet(route, async (
                 [FromRoute] Guid projectId,
                 [FromQuery] string? title,
+                [FromQuery] string? searchTerm,
                 [FromServices] IServiceManager serviceManager,
                 CancellationToken cancellationToken,
                 [FromQuery] int page = 1,
                 [FromQuery] int pageSize = 5) =>
             {
                 var subtastks = await serviceManager.SubtaskService
-                .GetPagedSubtasksForProjectAsync(projectId, page, pageSize, title, cancellationToken);
+                .GetPagedSubtasksForProjectAsync(projectId, page, pageSize, title, searchTerm, cancellationToken);
 
                 return Results.Ok(subtastks);
             })
