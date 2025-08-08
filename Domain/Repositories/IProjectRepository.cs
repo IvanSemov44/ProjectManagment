@@ -5,6 +5,7 @@
         Task<PagedList<Project>> GetPagedProjectsAsync(
             int page,
             int pageSize,
+            string? name,
             CancellationToken cancellationToken = default);
 
         Task<Project?> GetProjectAsync(

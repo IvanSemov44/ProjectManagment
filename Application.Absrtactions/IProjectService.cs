@@ -8,6 +8,7 @@ namespace Application.Absrtactions
         Task<PagedList<ProjectResponse>> GetPagedProjectsAsync(
             int page,
             int pageSize,
+            string? name,
             CancellationToken cancellationToken = default);
 
         Task<ProjectResponse> GetProjectAsync(
