@@ -1,6 +1,7 @@
 ﻿using Application.Absrtactions;
 using AutoMapper;
 using Contracts;
+using Contracts.Projects;
 using Contracts.Requests;
 using Contracts.Subtasks;
 using Domain;
@@ -8,7 +9,7 @@ using Domain.Expetions;
 
 namespace Application
 {
-    public sealed class SubtaskService(ICustomLogger logger, IUnitOfWork unitOfWork, IMapper mapper)
+    public sealed class SubtaskService(ICustomLogger logger, IUnitOfWork unitOfWork, IMapper mapper, ILinkService linkService)
         : ISubtaskService
     {
         public async Task<PagedList<SubtaskResponse>> GetPagedSubtasksForProjectAsync(
@@ -26,6 +27,8 @@ namespace Application
 
             var response = mapper.Map<PagedList<SubtaskResponse>>(subtasks);
 
+            GeneratePagedSubtasksLinks(response, requestParams,projectId);
+
             return response;
         }
 
@@ -40,6 +43,8 @@ namespace Application
                 ?? throw new SubtaskNotFoundException(id);
 
             var response = mapper.Map<SubtaskResponse>(subtask);
+
+            GenerateSubtaskLinks(response, projectId);
 
             return response;
         }
@@ -124,6 +129,118 @@ namespace Application
             mapper.Map(updateSubtask, subtask);
 
             await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+
+        private void GenerateSubtaskLinks(SubtaskResponse response, Guid projectId)
+        {
+            response.Links.Add(
+                linkService.GenerateLink(
+                    SubtaskConstants.GetAllSubtasks,
+                    "subtasks",
+                    "GET",
+                    routeValues: new
+                    {
+                        projectId = projectId,
+                        page = 1,
+                        pageSize = 5
+                    }));
+
+            response.Links.Add(
+                linkService.GenerateLink(
+                    SubtaskConstants.GetSubtaskById,
+                    "self",
+                    "GET",
+                    new
+                    {
+                        projectId = projectId,
+                        id = response.Id,
+                    }));
+
+            response.Links.Add(
+                linkService.GenerateLink(
+                    SubtaskConstants.CreateSubtask,
+                    "create_subtask",
+                    "POST",
+                    null));
+
+            response.Links.Add(
+                linkService.GenerateLink(
+                    SubtaskConstants.UpdateSubtask,
+                    "update_subtask",
+                    "PUT",
+                    new
+                    {
+                        projectId = projectId,
+                        id = response.Id,
+                    }));
+
+            response.Links.Add(
+                linkService.GenerateLink(
+                    SubtaskConstants.DeleteSubtask,
+                    "delete_subtask",
+                    "DELETE",
+                    new
+                    {
+                        projectId = projectId,
+                        id = response.Id,
+                    }));
+
+            response.Links.Add(
+                linkService.GenerateLink(
+                    SubtaskConstants.PatchSubtask,
+                    "partially_update_project",
+                    "PATCH",
+                    new
+                    {
+                        projectId = projectId,
+                        id = response.Id,
+                    }));
+        }
+
+        private void GeneratePagedSubtasksLinks(PagedList<SubtaskResponse> pagedList, SubtaskRequestParameters requestParameters, Guid projectId)
+        {
+            foreach (var subtask in pagedList.Items)
+            {
+                GenerateSubtaskLinks(subtask, projectId);
+            }
+
+            if (pagedList.HasHextPage)
+            {
+                pagedList.Links.Add(
+                    linkService.GenerateLink(
+                        SubtaskConstants.GetAllSubtasks,
+                        "next_page",
+                        "GET",
+                        new
+                        {
+                            projectId = projectId,
+                            page = requestParameters.Page,
+                            pageSize = requestParameters.PageSize,
+                            title = requestParameters.Title,
+                            searchTerm = requestParameters.SearchTerm,
+                            sortBy = requestParameters.SortBy,
+                            sortOrder = requestParameters.SortOrder,
+                        }));
+            }
+
+            if (pagedList.HasPreviousPage)
+            {
+                pagedList.Links.Add(
+                    linkService.GenerateLink(
+                        SubtaskConstants.GetAllSubtasks,
+                        "previous_page",
+                        "GET",
+                        new
+                        {
+                            projectId = projectId,
+                            page = requestParameters.Page,
+                            pageSize = requestParameters.PageSize,
+                            title = requestParameters.Title,
+                            searchTerm = requestParameters.SearchTerm,
+                            sortBy = requestParameters.SortBy,
+                            sortOrder = requestParameters.SortOrder
+                        }));
+            }
         }
     }
 }

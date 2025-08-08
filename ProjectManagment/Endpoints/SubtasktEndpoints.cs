@@ -51,7 +51,7 @@ namespace ProjectManagement.Endpoints
             })
             .Produces<SubtaskResponse>()
             .Produces(StatusCodes.Status404NotFound)
-            .WithName("GetSubtaskById");
+            .WithName(SubtaskConstants.GetSubtaskById);
 
             routeBuilder.MapPost(route, async (
                 [FromRoute] Guid projectId,
@@ -73,7 +73,8 @@ namespace ProjectManagement.Endpoints
             })
             .AddEndpointFilter<ValidationFilter<CreateSubtaskRequest>>()
             .Produces<SubtaskResponse>(StatusCodes.Status201Created)
-            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
+            .WithName(SubtaskConstants.CreateSubtask);
 
             routeBuilder.MapPut(routeWithSubtaskId, async (
                 [FromRoute] Guid projectId,
@@ -95,7 +96,8 @@ namespace ProjectManagement.Endpoints
             .AddEndpointFilter<ValidationFilter<UpdateSubtaskRequest>>()
             .Produces(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status404NotFound)
-            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
+            .WithName(SubtaskConstants.UpdateSubtask);
 
             routeBuilder.MapDelete(routeWithSubtaskId, async (
                 [FromRoute] Guid projectId,
@@ -109,7 +111,8 @@ namespace ProjectManagement.Endpoints
                 return Results.NoContent();
             })
             .Produces(StatusCodes.Status204NoContent)
-            .Produces(StatusCodes.Status404NotFound);
+            .Produces(StatusCodes.Status404NotFound)
+            .WithName(SubtaskConstants.DeleteSubtask);
 
             routeBuilder.MapPatch(routeWithSubtaskId, async (
                 [FromRoute] Guid projectId,
@@ -167,7 +170,8 @@ namespace ProjectManagement.Endpoints
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
+            .WithName(SubtaskConstants.PatchSubtask);
         }
     }
 }
