@@ -11,12 +11,20 @@ namespace Infrastructure.Repositories
             Guid projectId,
             int page,
             int pageSize,
+            string? title,
             CancellationToken cancellationToken = default)
         {
-            var totalCount = await GetByCondition(x => x.ProjectId.Equals(projectId), trackChanges: false)
-                .CountAsync(cancellationToken);
+            var query = GetByCondition(x => x.ProjectId.Equals(projectId), trackChanges: false);
 
-            var pagedSubtask = await GetByCondition(x => x.ProjectId.Equals(projectId), trackChanges: false)
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                query = query.Where(s => s.Title.Contains(title));
+            }
+
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var pagedSubtask = await query
                 .OrderBy(x => x.Title)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)

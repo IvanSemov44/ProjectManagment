@@ -9,6 +9,7 @@ namespace Application.Absrtactions
             Guid projectId,
             int page,
             int pageSize,
+            string? title,
             CancellationToken cancellationToken = default);
 
         Task<SubtaskResponse> GetSubtaskForProjectAsync(
