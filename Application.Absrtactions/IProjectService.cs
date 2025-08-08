@@ -1,4 +1,5 @@
 ﻿using Contracts.Projects;
+using Contracts.Requests;
 using Domain;
 
 namespace Application.Absrtactions
@@ -6,10 +7,7 @@ namespace Application.Absrtactions
     public interface IProjectService
     {
         Task<PagedList<ProjectResponse>> GetPagedProjectsAsync(
-            int page,
-            int pageSize,
-            string? name,
-            string? searchTerm,
+            ProjectRequestParameters requestParams,
             CancellationToken cancellationToken = default);
 
         Task<ProjectResponse> GetProjectAsync(

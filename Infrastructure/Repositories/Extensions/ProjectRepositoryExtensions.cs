@@ -1,4 +1,5 @@
 ﻿using Domain;
+using System.Linq.Expressions;
 
 namespace Infrastructure.Repositories.Extensions
 {
@@ -24,6 +25,22 @@ namespace Infrastructure.Repositories.Extensions
             }
 
             return projects;
+        }
+
+        public static IQueryable<Project> Sort(this IQueryable<Project> projects, string? sortBy, string? sortOrder)
+        {
+            Expression<Func<Project, object>> key = sortBy?.ToLower() switch
+            {
+                "name" => project => project.Name,
+                "description" => project => project.Description,
+                _ => project => project.Id
+            };
+
+            if (sortOrder is "desc")
+            {
+                return projects.OrderByDescending(key);
+            }
+            return projects.OrderBy(key);
         }
     }
 }

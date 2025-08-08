@@ -1,4 +1,5 @@
-﻿using Domain;
+﻿using Contracts.Requests;
+using Domain;
 using Domain.Repositories;
 using Infrastructure.Repositories.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -10,25 +11,22 @@ namespace Infrastructure.Repositories
     {
         public async Task<PagedList<Subtask>> GetPagedSubtasksForProjectAsync(
             Guid projectId,
-            int page,
-            int pageSize,
-            string? title,
-            string? searchTerm,
+            SubtaskRequestParameters requestParams,
             CancellationToken cancellationToken = default)
         {
             var query = GetByCondition(x => x.ProjectId.Equals(projectId), trackChanges: false)
-                .Filter(title)
-                .Search(searchTerm);
+                .Filter(requestParams.Title)
+                .Search(requestParams.SearchTerm)
+                .Sort(requestParams.SortBy, requestParams.SortOrder);
 
             var totalCount = await query.CountAsync(cancellationToken);
 
             var pagedSubtask = await query
-                .OrderBy(x => x.Title)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((requestParams.Page - 1) * requestParams.PageSize)
+                .Take(requestParams.PageSize)
                 .ToListAsync(cancellationToken);
 
-            return new PagedList<Subtask>(pagedSubtask, page, pageSize, totalCount);
+            return new PagedList<Subtask>(pagedSubtask, requestParams.Page, requestParams.PageSize, totalCount);
         }
 
         public async Task<Subtask?> GetSubtaskForProjectAsync(Guid projectId, Guid id, bool trackChanges, CancellationToken cancellationToken = default)

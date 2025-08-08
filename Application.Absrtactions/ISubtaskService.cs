@@ -1,4 +1,5 @@
-﻿using Contracts.Subtasks;
+﻿using Contracts.Requests;
+using Contracts.Subtasks;
 using Domain;
 
 namespace Application.Absrtactions
@@ -7,10 +8,7 @@ namespace Application.Absrtactions
     {
         Task<PagedList<SubtaskResponse>> GetPagedSubtasksForProjectAsync(
             Guid projectId,
-            int page,
-            int pageSize,
-            string? title,
-            string? searchTerm,
+            SubtaskRequestParameters requestParams,
             CancellationToken cancellationToken = default);
 
         Task<SubtaskResponse> GetSubtaskForProjectAsync(

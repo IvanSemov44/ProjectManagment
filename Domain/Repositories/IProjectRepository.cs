@@ -1,12 +1,11 @@
-﻿namespace Domain.Repositories
+﻿using Contracts.Requests;
+
+namespace Domain.Repositories
 {
     public interface IProjectRepository
     {
         Task<PagedList<Project>> GetPagedProjectsAsync(
-            int page,
-            int pageSize,
-            string? name,
-            string? searchTerm,
+            ProjectRequestParameters requestParams,
             CancellationToken cancellationToken = default);
 
         Task<Project?> GetProjectAsync(

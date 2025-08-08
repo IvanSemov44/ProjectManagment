@@ -1,4 +1,6 @@
-﻿namespace Domain.Repositories
+﻿using Contracts.Requests;
+
+namespace Domain.Repositories
 {
     public interface ISubtaskRepository
     {
@@ -10,10 +12,7 @@
 
         Task<PagedList<Subtask>> GetPagedSubtasksForProjectAsync(
             Guid projectId,
-            int page,
-            int pageSize,
-            string? title,
-            string? searchTerm,
+            SubtaskRequestParameters requestParams,
             CancellationToken cancellationToken = default);
 
         void CreateSubtask(Subtask subtask);

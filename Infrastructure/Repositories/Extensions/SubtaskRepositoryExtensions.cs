@@ -1,4 +1,5 @@
 ﻿using Domain;
+using System.Linq.Expressions;
 
 namespace Infrastructure.Repositories.Extensions
 {
@@ -23,6 +24,21 @@ namespace Infrastructure.Repositories.Extensions
                                            x.Description.ToLower().Contains(cleanTerm));
             }
             return subtasks;
+        }
+        public static IQueryable<Subtask> Sort(this IQueryable<Subtask> subtasks, string? sortBy, string? sortOrder)
+        {
+            Expression<Func<Subtask, object>> key = sortBy?.ToLower() switch
+            {
+                "title" => subtask => subtask.Title,
+                "description" => subtask => subtask.Description,
+                _ => subtask => subtask.Id
+            };
+
+            if (sortOrder is "desc")
+            {
+                return subtasks.OrderByDescending(key);
+            }
+            return subtasks.OrderBy(key);
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Application.Absrtactions;
+using Contracts.Requests;
 using Contracts.Subtasks;
 using Domain;
 using FluentValidation;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -21,15 +21,13 @@ namespace ProjectManagement.Endpoints
 
             routeBuilder.MapGet(route, async (
                 [FromRoute] Guid projectId,
-                [FromQuery] string? title,
-                [FromQuery] string? searchTerm,
+                [AsParameters] SubtaskRequestParameters requestParams,
                 [FromServices] IServiceManager serviceManager,
-                CancellationToken cancellationToken,
-                [FromQuery] int page = 1,
-                [FromQuery] int pageSize = 5) =>
+                CancellationToken cancellationToken
+                ) =>
             {
                 var subtastks = await serviceManager.SubtaskService
-                .GetPagedSubtasksForProjectAsync(projectId, page, pageSize, title, searchTerm, cancellationToken);
+                .GetPagedSubtasksForProjectAsync(projectId, requestParams, cancellationToken);
 
                 return Results.Ok(subtastks);
             })

@@ -2,6 +2,7 @@
 using AutoMapper;
 using Contracts;
 using Contracts.Projects;
+using Contracts.Requests;
 using Domain;
 using Domain.Expetions;
 
@@ -11,15 +12,11 @@ namespace Application
         ICustomLogger logger, IUnitOfWork unitOfWork, IMapper mapper)
         : IProjectService
     {
-
         public async Task<PagedList<ProjectResponse>> GetPagedProjectsAsync(
-            int page,
-            int pageSize,
-            string? name,
-            string? searchTerm,
+            ProjectRequestParameters requestParams,
             CancellationToken cancellationToken = default)
         {
-            var projects = await unitOfWork.ProjectRepository.GetPagedProjectsAsync(page, pageSize, name, searchTerm, cancellationToken);
+            var projects = await unitOfWork.ProjectRepository.GetPagedProjectsAsync(requestParams, cancellationToken);
 
             var response = mapper.Map<PagedList<ProjectResponse>>(projects);
 

@@ -1,4 +1,5 @@
-﻿using Domain;
+﻿using Contracts.Requests;
+using Domain;
 using Domain.Repositories;
 using Infrastructure.Repositories.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -9,25 +10,26 @@ namespace Infrastructure.Repositories
         : BaseRepository<Project>(context), IProjectRepository
     {
         public async Task<PagedList<Project>> GetPagedProjectsAsync(
-            int page,
-            int pageSize,
-            string? name,
-            string? searchTerm,
+            ProjectRequestParameters requestParams,
             CancellationToken cancellationToken = default)
         {
             var query = GetAll()
-                .Filter(name)
-                .Search(searchTerm);
+                .Filter(requestParams.Name)
+                .Search(requestParams.SearchTerm)
+                .Sort(requestParams.SortBy, requestParams.SortOrder);
 
             var totalCount = await query.CountAsync(cancellationToken);
 
             var pagedProjects = await query
-                .OrderBy(p => p.Name)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((requestParams.Page - 1) * requestParams.PageSize)
+                .Take(requestParams.PageSize)
                 .ToListAsync(cancellationToken);
 
-            return new PagedList<Project>(pagedProjects, page, pageSize, totalCount);
+            return new PagedList<Project>(
+                pagedProjects,
+                requestParams.Page,
+                requestParams.PageSize,
+                totalCount);
         }
 
         public async Task<Project?> GetProjectAsync(Guid id, bool trackChanges, CancellationToken cancellationToken)

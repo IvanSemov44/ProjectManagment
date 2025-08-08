@@ -1,6 +1,7 @@
 ﻿using Application.Absrtactions;
 using AutoMapper;
 using Contracts;
+using Contracts.Requests;
 using Contracts.Subtasks;
 using Domain;
 using Domain.Expetions;
@@ -12,10 +13,7 @@ namespace Application
     {
         public async Task<PagedList<SubtaskResponse>> GetPagedSubtasksForProjectAsync(
             Guid projectId,
-            int page,
-            int pageSize,
-            string? title,
-            string? searchTerm,
+            SubtaskRequestParameters requestParams,
             CancellationToken cancellationToken = default)
         {
             var project = await unitOfWork.ProjectRepository
@@ -24,7 +22,7 @@ namespace Application
 
 
             var subtasks = await unitOfWork.SubtaskRepository
-                .GetPagedSubtasksForProjectAsync(projectId, page, pageSize, title, searchTerm, cancellationToken);
+                .GetPagedSubtasksForProjectAsync(projectId, requestParams, cancellationToken);
 
             var response = mapper.Map<PagedList<SubtaskResponse>>(subtasks);
 

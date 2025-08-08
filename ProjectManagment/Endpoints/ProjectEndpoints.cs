@@ -1,5 +1,6 @@
 ﻿using Application.Absrtactions;
 using Contracts.Projects;
+using Contracts.Requests;
 using Domain;
 using FluentValidation;
 using Microsoft.AspNetCore.JsonPatch;
@@ -19,16 +20,13 @@ namespace ProjectManagement.Endpoints
         {
 
             routeBuilder.MapGet(route, async (
-                [FromQuery] string? name,
-                [FromQuery] string? searchTerm,
+                [AsParameters] ProjectRequestParameters requestParams,
                 [FromServices] IServiceManager serviceManager,
-                CancellationToken cancellationToken,
-                [FromQuery] int page = 1,
-                [FromQuery] int pageSize = 5
+                CancellationToken cancellationToken
                 ) =>
             {
                 var projects = await serviceManager.ProjectService
-                .GetPagedProjectsAsync(page, pageSize, name, searchTerm, cancellationToken);
+                .GetPagedProjectsAsync(requestParams, cancellationToken);
 
                 return Results.Ok(projects);
             })
