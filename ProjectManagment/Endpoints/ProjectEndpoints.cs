@@ -13,13 +13,13 @@ namespace ProjectManagement.Endpoints
 {
     public static class ProjectEndpoints
     {
-        const string route = "api/projects";
-        const string routeWithId = route + "/{id:guid}";
         public static void RegisterProjectEndpoints(
             this IEndpointRouteBuilder routeBuilder)
         {
+            var group = routeBuilder.MapGroup("projects")
+                .WithTags("Projects");
 
-            routeBuilder.MapGet(route, async (
+            group.MapGet("", async (
                 [AsParameters] ProjectRequestParameters requestParams,
                 [FromServices] IServiceManager serviceManager,
                 CancellationToken cancellationToken
@@ -33,7 +33,7 @@ namespace ProjectManagement.Endpoints
             .Produces<PagedList<ProjectResponse>>()
             .WithName(ProjectConstants.GetAllProjects);
 
-            routeBuilder.MapGet(routeWithId, async (
+            group.MapGet("{id:guid}", async (
                 [FromRoute] Guid id,
                 [FromServices] IServiceManager serviceManager,
                 CancellationToken cancellationToken) =>
@@ -48,9 +48,28 @@ namespace ProjectManagement.Endpoints
             })
             .Produces<ProjectResponse>()
             .Produces(StatusCodes.Status404NotFound)
-            .WithName(ProjectConstants.GetProjectById);
+            .WithName(ProjectConstants.GetProjectById)
+            .MapToApiVersion(1);
 
-            routeBuilder.MapPost(route, async (
+            group.MapGet("{id:guid}", async (
+                [FromRoute] Guid id,
+                [FromServices] IServiceManager serviceManager,
+                CancellationToken cancellationToken) =>
+            {
+                var project = await serviceManager.ProjectService
+                        .GetProjectAsync(
+                            id,
+                            trackChanges: false,
+                            cancellationToken);
+                project.Links.RemoveAll(x => x.Method is "GET");
+                return Results.Ok(project);
+            })
+            .Produces<ProjectResponse>()
+            .Produces(StatusCodes.Status404NotFound)
+            .WithName(ProjectConstants.GetProjectById + " v2")
+            .MapToApiVersion(2);
+
+            group.MapPost("", async (
                 [FromBody] CreateProjectRequest request,
                 [FromServices] IServiceManager serviceManager,
                 CancellationToken cancellationToken) =>
@@ -68,7 +87,7 @@ namespace ProjectManagement.Endpoints
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
             .WithName(ProjectConstants.CreateProject);
 
-            routeBuilder.MapPut(routeWithId, async (
+            group.MapPut("{id:guid}", async (
                 [FromRoute] Guid id,
                 [FromBody] UpdateProjectRequest request,
                 [FromServices] IServiceManager serviceManager,
@@ -85,7 +104,7 @@ namespace ProjectManagement.Endpoints
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
             .WithName(ProjectConstants.UpdateProject);
 
-            routeBuilder.MapDelete(routeWithId, async (
+            group.MapDelete("{id:guid}", async (
                 [FromRoute] Guid id,
                 [FromServices] IServiceManager serviceManager,
                 CancellationToken cancellationToken) =>
@@ -99,7 +118,7 @@ namespace ProjectManagement.Endpoints
             .Produces(StatusCodes.Status404NotFound)
             .WithName(ProjectConstants.DeleteProject);
 
-            routeBuilder.MapPatch(routeWithId, async (
+            group.MapPatch("{id:guid}", async (
                 [FromRoute] Guid id,
                 [FromBody] JsonElement jsonElement,
                 [FromServices] IServiceManager serviceManager,

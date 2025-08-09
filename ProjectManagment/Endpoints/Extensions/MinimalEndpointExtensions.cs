@@ -21,14 +21,16 @@ namespace ProjectManagement.Endpoints.Extensions
             return services;
         }
 
-        public static IApplicationBuilder RegisterMinimalEndpoints(this WebApplication app)
+        public static IApplicationBuilder RegisterMinimalEndpoints(
+            this WebApplication app,
+            IEndpointRouteBuilder routerBuilder)
         {
             var endpoints = app.Services
                 .GetRequiredService<IEnumerable<IMinimalEndpoint>>();
 
             foreach (var endpoint in endpoints)
             {
-                endpoint.MapEndpoints(app);
+                endpoint.MapEndpoints(routerBuilder);
             }
 
             return app;

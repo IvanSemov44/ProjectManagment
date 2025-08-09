@@ -14,12 +14,13 @@ namespace ProjectManagement.Endpoints
 {
     public class SubtasktEndpoints : IMinimalEndpoint
     {
-        const string route = "api/projects/{projectId:guid}/subtasks";
-        const string routeWithSubtaskId = route + "/{id:guid}";
         public void MapEndpoints(IEndpointRouteBuilder routeBuilder)
         {
 
-            routeBuilder.MapGet(route, async (
+            var group = routeBuilder.MapGroup("projects/{projectId:guid}/subtasks")
+                .WithTags("Subtasks");
+
+            group.MapGet("", async (
                 [FromRoute] Guid projectId,
                 [AsParameters] SubtaskRequestParameters requestParams,
                 [FromServices] IServiceManager serviceManager,
@@ -34,7 +35,7 @@ namespace ProjectManagement.Endpoints
             .Produces<PagedList<SubtaskResponse>>()
             .WithName(SubtaskConstants.GetAllSubtasks);
 
-            routeBuilder.MapGet(routeWithSubtaskId, async (
+            group.MapGet("{id:guid}", async (
                 [FromRoute] Guid projectId,
                 [FromRoute] Guid id,
                 [FromServices] IServiceManager serviceManager,
@@ -53,7 +54,7 @@ namespace ProjectManagement.Endpoints
             .Produces(StatusCodes.Status404NotFound)
             .WithName(SubtaskConstants.GetSubtaskById);
 
-            routeBuilder.MapPost(route, async (
+            group.MapPost("", async (
                 [FromRoute] Guid projectId,
                 [FromBody] CreateSubtaskRequest request,
                 [FromServices] IServiceManager serviceManager,
@@ -76,7 +77,7 @@ namespace ProjectManagement.Endpoints
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
             .WithName(SubtaskConstants.CreateSubtask);
 
-            routeBuilder.MapPut(routeWithSubtaskId, async (
+            group.MapPut("{id:guid}", async (
                 [FromRoute] Guid projectId,
                 [FromRoute] Guid id,
                 [FromBody] UpdateSubtaskRequest request,
@@ -99,7 +100,7 @@ namespace ProjectManagement.Endpoints
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
             .WithName(SubtaskConstants.UpdateSubtask);
 
-            routeBuilder.MapDelete(routeWithSubtaskId, async (
+            group.MapDelete("{id:guid}", async (
                 [FromRoute] Guid projectId,
                 [FromRoute] Guid id,
                 [FromServices] IServiceManager serviceManager,
@@ -114,7 +115,7 @@ namespace ProjectManagement.Endpoints
             .Produces(StatusCodes.Status404NotFound)
             .WithName(SubtaskConstants.DeleteSubtask);
 
-            routeBuilder.MapPatch(routeWithSubtaskId, async (
+            group.MapPatch("{id:guid}", async (
                 [FromRoute] Guid projectId,
                 [FromRoute] Guid id,
                 [FromBody] JsonElement jsonElement,

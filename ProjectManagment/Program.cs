@@ -1,22 +1,14 @@
-using Serilog;
 using FluentValidation;
-
-using Microsoft.EntityFrameworkCore;
-
 using Application;
 using Application.Absrtactions;
-
 using Contracts;
 using Domain;
 using Infrastructure;
 using LoggingService;
-
-using ProjectManagement.Endpoints;
 using ProjectManagement.Endpoints.Extensions;
 using ProjectManagement.Middleware;
 using ProjectManagement.Validators;
-using Microsoft.OpenApi.Models;
-
+using ProjectManagement.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,49 +29,13 @@ builder.Services.AddValidatorsFromAssemblyContaining(typeof(CreateProjectRequest
 
 builder.Services.AddMinimalEndpoints();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
+builder.ConfigureCors();
+builder.ConfigureSwagger();
+builder.ConfigureLogging();
+builder.ConfigureDatabase();
+builder.ConfigureApiVersioning();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnectionString");
-
-
-builder.Services.AddDbContext<ApplicationDbContext>(
-    options => options.UseSqlServer(
-        connectionString,
-        x => x.MigrationsAssembly("ProjectManagement")));
-
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Project Management Api",
-        Version = "v1",
-        Description = "Api for managing projects and related subtasks",
-        Contact = new OpenApiContact
-        {
-            Name = "Code Maze",
-            Email = "info@code-maze.com"
-        },
-        License = new OpenApiLicense
-        {
-            Name = "MIT",
-            Url = new Uri("https://opensoure.org/licenses/MIT")
-        }
-    });
-});
 builder.Services.AddEndpointsApiExplorer();
-
-builder.Host.UseSerilog((hostContext, configuration) =>
-{
-    configuration.ReadFrom.Configuration(hostContext.Configuration);
-});
 
 var app = builder.Build();
 
@@ -87,13 +43,10 @@ var app = builder.Build();
 //app.UseHttpsRedirection();
 app.UseExceptionHandler();
 
-app.UseSwagger();
-app.UseSwaggerUI();
-
 app.UseCors("AllowAll");
 
-app.RegisterProjectEndpoints();
-app.RegisterMinimalEndpoints();
+app.AddVersionedEndpoints();
 
+app.AddSwagger();
 
 app.Run();
