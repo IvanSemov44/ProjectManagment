@@ -1,6 +1,8 @@
 ﻿using Asp.Versioning;
+using Contracts.Projects;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using ProjectManagement.Policies;
 using ProjectManagement.Swagger;
 using Serilog;
 
@@ -67,6 +69,31 @@ namespace ProjectManagement.Extensions
                     policy.AllowAnyOrigin()
                           .AllowAnyMethod()
                           .AllowAnyHeader();
+                });
+            });
+
+            return builder;
+        }
+
+        public static WebApplicationBuilder ConfigureOutputCaching(this WebApplicationBuilder builder)
+        {
+            builder.Services.AddOutputCache(options =>
+            {
+                options.AddBasePolicy(policy =>
+                {
+                    policy.Expire(TimeSpan.FromMinutes(3));
+                });
+
+                options.AddPolicy("FiveMinutes", policy =>
+                {
+                    policy.Tag(ProjectConstants.GetAllProjects);
+                    policy.Expire(TimeSpan.FromMinutes(5));
+                });
+
+                options.AddPolicy("Id", policy =>
+                {
+                    policy.AddPolicy<VaryByIndentifierCachePolicy>();
+                    policy.Expire(TimeSpan.FromMinutes(5));
                 });
             });
 

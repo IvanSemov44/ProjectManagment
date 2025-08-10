@@ -5,6 +5,7 @@ using Domain;
 using FluentValidation;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Newtonsoft.Json;
 using ProjectManagement.Middleware;
 using System.Text.Json;
@@ -30,6 +31,7 @@ namespace ProjectManagement.Endpoints
 
                 return Results.Ok(projects);
             })
+            .CacheOutput("FiveMinutes")
             .Produces<PagedList<ProjectResponse>>()
             .WithName(ProjectConstants.GetAllProjects);
 
@@ -46,6 +48,7 @@ namespace ProjectManagement.Endpoints
 
                 return Results.Ok(project);
             })
+            .CacheOutput()
             .Produces<ProjectResponse>()
             .Produces(StatusCodes.Status404NotFound)
             .WithName(ProjectConstants.GetProjectById)
@@ -64,6 +67,7 @@ namespace ProjectManagement.Endpoints
                 project.Links.RemoveAll(x => x.Method is "GET");
                 return Results.Ok(project);
             })
+            .CacheOutput()
             .Produces<ProjectResponse>()
             .Produces(StatusCodes.Status404NotFound)
             .WithName(ProjectConstants.GetProjectById + " v2")
@@ -83,6 +87,7 @@ namespace ProjectManagement.Endpoints
                     value: project);
             })
             .AddEndpointFilter<ValidationFilter<CreateProjectRequest>>()
+            .AddEndpointFilter<CacheInvalidationFilter>()
             .Produces<ProjectResponse>(StatusCodes.Status201Created)
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
             .WithName(ProjectConstants.CreateProject);
@@ -99,6 +104,7 @@ namespace ProjectManagement.Endpoints
                 return Results.NoContent();
             })
             .AddEndpointFilter<ValidationFilter<UpdateProjectRequest>>()
+            .AddEndpointFilter<CacheInvalidationFilter>()
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
@@ -114,6 +120,7 @@ namespace ProjectManagement.Endpoints
 
                 return Results.NoContent();
             })
+            .AddEndpointFilter<CacheInvalidationFilter>()
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
             .WithName(ProjectConstants.DeleteProject);
@@ -165,6 +172,7 @@ namespace ProjectManagement.Endpoints
 
                 return Results.NoContent();
             })
+            .AddEndpointFilter<CacheInvalidationFilter>()
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status400BadRequest)

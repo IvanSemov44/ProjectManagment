@@ -9,6 +9,8 @@ using ProjectManagement.Endpoints.Extensions;
 using ProjectManagement.Middleware;
 using ProjectManagement.Validators;
 using ProjectManagement.Extensions;
+using Contracts.Projects;
+using ProjectManagement.Policies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +36,7 @@ builder.ConfigureSwagger();
 builder.ConfigureLogging();
 builder.ConfigureDatabase();
 builder.ConfigureApiVersioning();
+builder.ConfigureOutputCaching();
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -44,6 +47,8 @@ var app = builder.Build();
 app.UseExceptionHandler();
 
 app.UseCors("AllowAll");
+
+app.UseOutputCache();
 
 app.AddVersionedEndpoints();
 

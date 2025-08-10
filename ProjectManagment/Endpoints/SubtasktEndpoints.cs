@@ -32,6 +32,7 @@ namespace ProjectManagement.Endpoints
 
                 return Results.Ok(subtastks);
             })
+            .CacheOutput(policy => policy.Tag(SubtaskConstants.GetAllSubtasks))
             .Produces<PagedList<SubtaskResponse>>()
             .WithName(SubtaskConstants.GetAllSubtasks);
 
@@ -50,6 +51,7 @@ namespace ProjectManagement.Endpoints
 
                 return Results.Ok(subtask);
             })
+                .CacheOutput("Id")
             .Produces<SubtaskResponse>()
             .Produces(StatusCodes.Status404NotFound)
             .WithName(SubtaskConstants.GetSubtaskById);
@@ -73,6 +75,7 @@ namespace ProjectManagement.Endpoints
                     value: subtask);
             })
             .AddEndpointFilter<ValidationFilter<CreateSubtaskRequest>>()
+            .AddEndpointFilter<CacheInvalidationFilter>()
             .Produces<SubtaskResponse>(StatusCodes.Status201Created)
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
             .WithName(SubtaskConstants.CreateSubtask);
@@ -95,6 +98,7 @@ namespace ProjectManagement.Endpoints
                 return Results.NoContent();
             })
             .AddEndpointFilter<ValidationFilter<UpdateSubtaskRequest>>()
+            .AddEndpointFilter<CacheInvalidationFilter>()
             .Produces(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status404NotFound)
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
@@ -111,6 +115,7 @@ namespace ProjectManagement.Endpoints
 
                 return Results.NoContent();
             })
+            .AddEndpointFilter<CacheInvalidationFilter>()
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
             .WithName(SubtaskConstants.DeleteSubtask);
@@ -168,6 +173,7 @@ namespace ProjectManagement.Endpoints
 
                 return Results.NoContent();
             })
+            .AddEndpointFilter<CacheInvalidationFilter>()
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status400BadRequest)
