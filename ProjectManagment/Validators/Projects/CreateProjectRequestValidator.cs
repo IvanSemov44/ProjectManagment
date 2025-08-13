@@ -1,6 +1,6 @@
 ﻿using Contracts.Projects;
 
-namespace ProjectManagement.Validators
+namespace ProjectManagement.Validators.Projects
 {
     public class CreateProjectRequestValidator : BaseProjectRequestValidator<CreateProjectRequest>
     {

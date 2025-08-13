@@ -3,15 +3,20 @@ using Asp.Versioning;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
+using System.Text;
 using System.Threading.RateLimiting;
 
+using Domain;
 using Infrastructure;
+using Application.Options;
 using Contracts.Projects;
 using ProjectManagement.Policies;
 using ProjectManagement.Swagger;
-using Domain;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Identity;
 
 namespace ProjectManagement.Extensions
 {
@@ -162,6 +167,39 @@ namespace ProjectManagement.Extensions
             })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            return builder;
+        }
+
+        public static WebApplicationBuilder ConfigureAuthentication(this WebApplicationBuilder builder)
+        {
+            builder.Services.AddOptions<JwtOptions>()
+                .BindConfiguration(nameof(JwtOptions))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            using var serviceProvide = builder.Services.BuildServiceProvider();
+            var jwtOptions = serviceProvide.GetRequiredService<IOptions<JwtOptions>>().Value;
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new()
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtOptions.Issuer,
+                        ValidAudience = jwtOptions.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(jwtOptions.SecurityKey))
+                    };
+                });
 
             return builder;
         }

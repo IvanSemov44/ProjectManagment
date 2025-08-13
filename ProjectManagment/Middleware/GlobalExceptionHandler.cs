@@ -17,6 +17,7 @@ namespace ProjectManagement.Middleware
             var problemDetails = exception switch
             {
                 NotFoundException => Generate404Response(exception),
+                UnauthorizedAccessException => Generate401Response(exception),
                 _ => Generate500Response()
             };
 
@@ -30,6 +31,14 @@ namespace ProjectManagement.Middleware
                     Exception = exception,
                 });
         }
+
+        private static ProblemDetails Generate401Response(Exception exception) => new()
+        {
+            Type = "https://datatracker.ietf.org/doc/html/rfc9110#name-401-unauthorizzed",
+            Title = "Unauthorized",
+            Status = StatusCodes.Status401Unauthorized,
+            Detail = exception.Message
+        };
 
         private static ProblemDetails Generate500Response() => new()
         {

@@ -1,7 +1,8 @@
 ﻿using Contracts.Projects;
 using FluentValidation;
+using ProjectManagement.Validators.Subtasks;
 
-namespace ProjectManagement.Validators
+namespace ProjectManagement.Validators.Projects
 {
     public class BaseProjectRequestValidator<T>
         : AbstractValidator<T> where T : BaseProjectRequest

@@ -1,6 +1,6 @@
 ﻿using Contracts.Subtasks;
 
-namespace ProjectManagement.Validators
+namespace ProjectManagement.Validators.Subtasks
 {
     public class UpdateSubtaskRequestValidator 
         : BaseSubtaskRequestValidator<UpdateSubtaskRequest>

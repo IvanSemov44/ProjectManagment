@@ -1,7 +1,7 @@
 ﻿using Contracts.Users;
 using FluentValidation;
 
-namespace ProjectManagement.Validators
+namespace ProjectManagement.Validators.Users
 {
     public class RegisterUserValidator : AbstractValidator<RegisterUserRequest>
     {

@@ -1,7 +1,7 @@
 ﻿using Contracts.Subtasks;
 using FluentValidation;
 
-namespace ProjectManagement.Validators
+namespace ProjectManagement.Validators.Subtasks
 {
     public class CreateSubtaskRequestValidator 
         : BaseSubtaskRequestValidator<CreateSubtaskRequest>

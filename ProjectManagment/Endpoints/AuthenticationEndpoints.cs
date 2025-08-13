@@ -38,6 +38,20 @@ namespace ProjectManagement.Endpoints
                 .Produces(StatusCodes.Status201Created)
                 .Produces(StatusCodes.Status400BadRequest)
                 .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+
+            group.MapPost("login", async (
+                [FromBody] LoginUserRequest request,
+                [FromServices] IServiceManager serviceManager) =>
+            {
+                var token = await serviceManager.AuthenticationService
+                .LoginUserAsync(request);
+
+                return Results.Ok(new { Token = token });
+            })
+                .AddEndpointFilter<ValidationFilter<LoginUserRequest>>()
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status401Unauthorized)
+                .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
         }
     }
 }

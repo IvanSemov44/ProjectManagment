@@ -11,7 +11,8 @@ namespace Application
         IUnitOfWork unitOfWork,
         IMapper mapper,
         ILinkService linkService,
-        UserManager<User> userManager)
+        UserManager<User> userManager,
+        IJwtService jwtService)
         : IServiceManager
     {
         private readonly Lazy<IProjectService> _projectService = new(()
@@ -19,7 +20,7 @@ namespace Application
         private readonly Lazy<ISubtaskService> _subtaskService = new(()
             => new SubtaskService(logger, unitOfWork, mapper, linkService));
         private readonly Lazy<IAuthenticationService> _authenticationService = new(()
-            => new AuthenticationService(userManager, mapper));
+            => new AuthenticationService(userManager, mapper, jwtService));
 
         public IProjectService ProjectService => _projectService.Value;
 

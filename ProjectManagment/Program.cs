@@ -7,8 +7,8 @@ using Infrastructure;
 using LoggingService;
 using ProjectManagement.Endpoints.Extensions;
 using ProjectManagement.Middleware;
-using ProjectManagement.Validators;
 using ProjectManagement.Extensions;
+using ProjectManagement.Validators.Projects;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ILinkService, LinkService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IServiceManager, ServiceManager>();
 builder.Services.AddSingleton<ICustomLogger, CustomLogger>();
 
@@ -29,7 +30,6 @@ builder.Services.AddValidatorsFromAssemblyContaining(typeof(CreateProjectRequest
 
 builder.Services.AddMinimalEndpoints();
 
-builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
 builder.ConfigureCors();
@@ -40,6 +40,7 @@ builder.ConfigureApiVersioning();
 builder.ConfigureOutputCaching();
 builder.ConfigureRateLimiting();
 builder.ConfigureMicrosoftIdentity();
+builder.ConfigureAuthentication();
 
 builder.Services.AddEndpointsApiExplorer();
 
