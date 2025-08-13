@@ -4,5 +4,6 @@
     {
         IProjectService ProjectService { get; }
         ISubtaskService SubtaskService { get; }
+        IAuthenticationService AuthenticationService { get; }
     }
 }
