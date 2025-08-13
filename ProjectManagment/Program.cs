@@ -9,8 +9,6 @@ using ProjectManagement.Endpoints.Extensions;
 using ProjectManagement.Middleware;
 using ProjectManagement.Validators;
 using ProjectManagement.Extensions;
-using Contracts.Projects;
-using ProjectManagement.Policies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +35,7 @@ builder.ConfigureLogging();
 builder.ConfigureDatabase();
 builder.ConfigureApiVersioning();
 builder.ConfigureOutputCaching();
+builder.ConfigureRateLimiting();
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -44,7 +43,10 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 //app.UseHttpsRedirection();
+
 app.UseExceptionHandler();
+
+app.UseRateLimiter();
 
 app.UseCors("AllowAll");
 

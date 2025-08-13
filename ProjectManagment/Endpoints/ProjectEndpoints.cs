@@ -18,7 +18,8 @@ namespace ProjectManagement.Endpoints
             this IEndpointRouteBuilder routeBuilder)
         {
             var group = routeBuilder.MapGroup("projects")
-                .WithTags("Projects");
+                .WithTags("Projects")
+                .RequireRateLimiting("fixed-window");
 
             group.MapGet("", async (
                 [AsParameters] ProjectRequestParameters requestParams,

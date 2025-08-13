@@ -18,7 +18,8 @@ namespace ProjectManagement.Endpoints
         {
 
             var group = routeBuilder.MapGroup("projects/{projectId:guid}/subtasks")
-                .WithTags("Subtasks");
+                .WithTags("Subtasks")
+                .RequireRateLimiting("token-bucket");
 
             group.MapGet("", async (
                 [FromRoute] Guid projectId,

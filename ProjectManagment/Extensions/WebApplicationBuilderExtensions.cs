@@ -1,15 +1,20 @@
-﻿using Asp.Versioning;
-using Contracts.Projects;
-using Infrastructure;
+﻿using Serilog;
+using Asp.Versioning;
+
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+
+using Infrastructure;
+using Contracts.Projects;
 using ProjectManagement.Policies;
 using ProjectManagement.Swagger;
-using Serilog;
 
 namespace ProjectManagement.Extensions
 {
     public static class WebApplicationBuilderExtensions
     {
+
         public static WebApplicationBuilder ConfigureDatabase(this WebApplicationBuilder builder)
         {
             var connectionString = builder.Configuration
@@ -94,6 +99,46 @@ namespace ProjectManagement.Extensions
                 {
                     policy.AddPolicy<VaryByIndentifierCachePolicy>();
                     policy.Expire(TimeSpan.FromMinutes(5));
+                });
+            });
+
+            return builder;
+        }
+
+        public static WebApplicationBuilder ConfigureRateLimiting(this WebApplicationBuilder builder)
+        {
+            builder.Services.AddRateLimiter(limiterOptions =>
+            {
+                limiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+                limiterOptions.AddFixedWindowLimiter("fixed-window", options =>
+                {
+                    options.Window = TimeSpan.FromSeconds(10);
+                    options.PermitLimit = 10;
+                    options.QueueLimit = 1;
+                    options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                });
+
+                limiterOptions.AddSlidingWindowLimiter("sliding-window", options =>
+                {
+                    options.Window = TimeSpan.FromSeconds(10);
+                    options.SegmentsPerWindow = 2;
+                    options.PermitLimit = 10;
+                    options.QueueLimit = 1;
+                });
+
+                limiterOptions.AddConcurrencyLimiter("concurrency", options =>
+                {
+                    options.PermitLimit = 10;
+                    options.QueueLimit = 1;
+                });
+
+                limiterOptions.AddTokenBucketLimiter("token-bucket", options =>
+                {
+                    options.TokenLimit = 2;
+                    options.ReplenishmentPeriod = TimeSpan.FromSeconds(10);
+                    options.TokensPerPeriod = 1;
+                    options.QueueLimit = 1;
                 });
             });
 
