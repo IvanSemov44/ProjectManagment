@@ -4,6 +4,7 @@ using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ProjectManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250813123443_MicrosoftIdentity")]
+    partial class MicrosoftIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,31 +33,15 @@ namespace ProjectManagement.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Projects");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("80abbca8-664d-4b20-b5de-024705497d4a"),
-                            Description = "Description for Project Alpha",
-                            Name = "Project Alpha"
-                        },
-                        new
-                        {
-                            Id = new Guid("c9d4c053-49b6-410c-bc78-2d54a9991870"),
-                            Description = "Description for Project Beta",
-                            Name = "Project Beta"
-                        });
                 });
 
             modelBuilder.Entity("Domain.Subtask", b =>
@@ -65,8 +52,7 @@ namespace ProjectManagement.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("bit");
@@ -76,40 +62,13 @@ namespace ProjectManagement.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProjectId");
 
                     b.ToTable("Subtasks");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("86dba8c0-d178-41e7-938c-ed49778fb52a"),
-                            Description = "Description for Subtask 1",
-                            IsCompleted = false,
-                            ProjectId = new Guid("80abbca8-664d-4b20-b5de-024705497d4a"),
-                            Title = "Subtask 1 for Project Alpha"
-                        },
-                        new
-                        {
-                            Id = new Guid("021ca3c1-0deb-4afd-ae94-2159a8479811"),
-                            Description = "Description for Subtask 2",
-                            IsCompleted = true,
-                            ProjectId = new Guid("80abbca8-664d-4b20-b5de-024705497d4a"),
-                            Title = "Subtask 2 for Project Alpha"
-                        },
-                        new
-                        {
-                            Id = new Guid("3d490a70-94ce-4d15-9494-5248280c2ce3"),
-                            Description = "Description for Subtask 1",
-                            IsCompleted = false,
-                            ProjectId = new Guid("c9d4c053-49b6-410c-bc78-2d54a9991870"),
-                            Title = "Subtask 1 for Project Beta"
-                        });
                 });
 
             modelBuilder.Entity("Domain.User", b =>

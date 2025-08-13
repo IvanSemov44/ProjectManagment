@@ -29,6 +29,9 @@ builder.Services.AddValidatorsFromAssemblyContaining(typeof(CreateProjectRequest
 
 builder.Services.AddMinimalEndpoints();
 
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+
 builder.ConfigureCors();
 builder.ConfigureSwagger();
 builder.ConfigureLogging();
@@ -36,6 +39,7 @@ builder.ConfigureDatabase();
 builder.ConfigureApiVersioning();
 builder.ConfigureOutputCaching();
 builder.ConfigureRateLimiting();
+builder.ConfigureMicrosoftIdentity();
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -45,6 +49,11 @@ var app = builder.Build();
 //app.UseHttpsRedirection();
 
 app.UseExceptionHandler();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+await app.AddRoles();
 
 app.UseRateLimiter();
 

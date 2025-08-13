@@ -1,4 +1,5 @@
 ﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Identity;
 using ProjectManagement.Endpoints;
 using ProjectManagement.Endpoints.Extensions;
 
@@ -41,6 +42,23 @@ namespace ProjectManagement.Extensions
             });
 
             return app;
+        }
+
+        public static async Task AddRoles(this WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            var roles = new[] { "Administrator", "ProjectManager" };
+
+            foreach (var role in roles)
+            {
+                if (!await roleManager.RoleExistsAsync(role))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(role));
+                }
+            }
         }
     }
 }

@@ -9,6 +9,9 @@ using Infrastructure;
 using Contracts.Projects;
 using ProjectManagement.Policies;
 using ProjectManagement.Swagger;
+using Domain;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Identity;
 
 namespace ProjectManagement.Extensions
 {
@@ -141,6 +144,24 @@ namespace ProjectManagement.Extensions
                     options.QueueLimit = 1;
                 });
             });
+
+            return builder;
+        }
+
+        public static WebApplicationBuilder ConfigureMicrosoftIdentity(this WebApplicationBuilder builder)
+        {
+            builder.Services.AddIdentity<User, IdentityRole>(options =>
+            {
+                options.Password.RequiredLength = 8;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+
+                options.User.RequireUniqueEmail = true;
+            })
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
             return builder;
         }
