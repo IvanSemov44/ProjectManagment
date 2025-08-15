@@ -1,4 +1,5 @@
 ﻿using Application.Absrtactions;
+using Contracts.Tokens;
 using Contracts.Users;
 using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.Endpoints.Abstractions;
@@ -46,11 +47,26 @@ namespace ProjectManagement.Endpoints
                 var token = await serviceManager.AuthenticationService
                 .LoginUserAsync(request);
 
-                return Results.Ok(new { Token = token });
+                return Results.Ok(token);
             })
                 .AddEndpointFilter<ValidationFilter<LoginUserRequest>>()
                 .Produces(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized)
+                .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+
+            group.MapPost("refresh-access-token", async (
+                [FromBody] RefreshTokenRequest request,
+                [FromServices] IServiceManager serviceManager,
+                CancellationToken cancellationToken) =>
+            {
+                var token = await serviceManager.AuthenticationService
+                .RefreshAccessTokenAsync(request, cancellationToken);
+
+                return Results.Ok(token);
+            })
+                .AddEndpointFilter<ValidationFilter<RefreshTokenRequest>>()
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status400BadRequest)
                 .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
         }
     }

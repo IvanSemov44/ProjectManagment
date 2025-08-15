@@ -17,6 +17,7 @@ namespace ProjectManagement.Middleware
             var problemDetails = exception switch
             {
                 NotFoundException => Generate404Response(exception),
+                BadRequestException => Generate400Response(exception),
                 UnauthorizedAccessException => Generate401Response(exception),
                 _ => Generate500Response()
             };
@@ -31,6 +32,14 @@ namespace ProjectManagement.Middleware
                     Exception = exception,
                 });
         }
+
+        private static ProblemDetails Generate400Response(Exception exception) => new()
+        {
+            Type = "https://datatracker.ietf.org/doc/html/rfc9110#name-400-bad-request",
+            Title = "Bad Request",
+            Status = StatusCodes.Status400BadRequest,
+            Detail = exception.Message
+        };
 
         private static ProblemDetails Generate401Response(Exception exception) => new()
         {

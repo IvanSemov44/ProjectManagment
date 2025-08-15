@@ -17,6 +17,8 @@ using Application.Options;
 using Contracts.Projects;
 using ProjectManagement.Policies;
 using ProjectManagement.Swagger;
+using Microsoft.OpenApi.Models;
+using System.Security.Cryptography.Xml;
 
 namespace ProjectManagement.Extensions
 {
@@ -58,7 +60,36 @@ namespace ProjectManagement.Extensions
 
             builder.Services.ConfigureOptions<SwaggerGetOptionsConfiguration>();
 
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.AddSecurityDefinition(
+                    JwtBearerDefaults.AuthenticationScheme,
+                    new OpenApiSecurityScheme
+                    {
+                        Name = "JWT Authentication",
+                        Description = "Enter your JWT token here",
+                        In = ParameterLocation.Header,
+                        Type = SecuritySchemeType.Http,
+                        Scheme = JwtBearerDefaults.AuthenticationScheme,
+                        BearerFormat = "JWT"
+                    });
+
+                options.AddSecurityRequirement(
+                    new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Id=JwtBearerDefaults.AuthenticationScheme,
+                                    Type = ReferenceType.SecurityScheme
+                                }
+                            },
+                            []
+                        }
+                    });
+            });
 
             return builder;
         }
@@ -183,7 +214,7 @@ namespace ProjectManagement.Extensions
 
             builder.Services.AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             })
                 .AddJwtBearer(options =>
@@ -199,6 +230,17 @@ namespace ProjectManagement.Extensions
                         IssuerSigningKey = new SymmetricSecurityKey(
                             Encoding.UTF8.GetBytes(jwtOptions.SecurityKey))
                     };
+                });
+
+            return builder;
+        }
+
+        public static WebApplicationBuilder ConfigureAuthorization(this WebApplicationBuilder builder)
+        {
+            builder.Services.AddAuthorizationBuilder()
+                .AddPolicy("RequireAdministrator", policy =>
+                {
+                    policy.RequireRole("Administrator");
                 });
 
             return builder;

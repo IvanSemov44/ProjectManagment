@@ -30,8 +30,6 @@ builder.Services.AddValidatorsFromAssemblyContaining(typeof(CreateProjectRequest
 
 builder.Services.AddMinimalEndpoints();
 
-builder.Services.AddAuthorization();
-
 builder.ConfigureCors();
 builder.ConfigureSwagger();
 builder.ConfigureLogging();
@@ -41,12 +39,14 @@ builder.ConfigureOutputCaching();
 builder.ConfigureRateLimiting();
 builder.ConfigureMicrosoftIdentity();
 builder.ConfigureAuthentication();
+builder.ConfigureAuthorization();
 
 builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+//Configure the HTTP request pipeline.
+
 //app.UseHttpsRedirection();
 
 app.UseExceptionHandler();
@@ -67,3 +67,17 @@ app.AddVersionedEndpoints();
 app.AddSwagger();
 
 app.Run();
+
+//app.UseExceptionHandler(); // 1. Exception handling should be first to catch all errors.
+//app.UseHttpsRedirection(); // 2. HTTPS redirection comes early to ensure secure connections.
+//app.UseCors("AllowAll"); // 3. CORS is handled early, before authentication and authorization.
+//app.UseOutputCache(); // 4. Caching comes after CORS and redirection.
+//app.UseAuthentication(); // 5. Authentication identifies the user.
+//app.UseAuthorization(); // 6. Authorization checks if the authenticated user has access.
+//app.UseRateLimiter(); // 7. Rate limiting should be applied after auth to correctly identify clients.
+
+//// The following are not middleware in the traditional sense, but configuration for the pipeline.
+//await app.AddRoles(); // This is likely a service that runs once at startup.
+//app.AddVersionedEndpoints(); // Endpoint mapping must be done after authorization.
+//app.AddSwagger(); // Swagger should also be mapped after the main middleware pipeline is configured.
+//app.Run();

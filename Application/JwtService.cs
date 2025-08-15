@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Application
@@ -12,6 +13,12 @@ namespace Application
     public class JwtService(IOptions<JwtOptions> options) : IJwtService
     {
         private readonly JwtOptions _jwtOptions = options.Value;
+
+        public string GenerateRefreshToken()
+        {
+            return Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+        }
+
         public string GenerateToken(User user, IEnumerable<string> roles)
         {
             var claims = new List<Claim>

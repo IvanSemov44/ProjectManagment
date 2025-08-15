@@ -5,7 +5,6 @@ using Domain;
 using FluentValidation;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
 using Newtonsoft.Json;
 using ProjectManagement.Middleware;
 using System.Text.Json;
@@ -20,6 +19,7 @@ namespace ProjectManagement.Endpoints
             var group = routeBuilder.MapGroup("projects")
                 .WithTags("Projects")
                 .RequireRateLimiting("fixed-window");
+                //.RequireAuthorization();
 
             group.MapGet("", async (
                 [AsParameters] ProjectRequestParameters requestParams,
@@ -110,7 +110,7 @@ namespace ProjectManagement.Endpoints
             .Produces(StatusCodes.Status404NotFound)
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
             .WithName(ProjectConstants.UpdateProject);
-
+ 
             group.MapDelete("{id:guid}", async (
                 [FromRoute] Guid id,
                 [FromServices] IServiceManager serviceManager,
@@ -121,6 +121,7 @@ namespace ProjectManagement.Endpoints
 
                 return Results.NoContent();
             })
+            .RequireAuthorization("RequireAdministrator")
             .AddEndpointFilter<CacheInvalidationFilter>()
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)

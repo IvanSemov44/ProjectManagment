@@ -1,8 +1,11 @@
 ﻿using Application.Absrtactions;
 using AutoMapper;
+using Contracts.Tokens;
 using Contracts.Users;
 using Domain;
+using Domain.Expetions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application
 {
@@ -12,7 +15,7 @@ namespace Application
         IJwtService jwtService)
     : IAuthenticationService
     {
-        public async Task<string> LoginUserAsync(LoginUserRequest request)
+        public async Task<TokenResponse> LoginUserAsync(LoginUserRequest request)
         {
             var user = (await userManager.FindByNameAsync(request.UserNameOrEmail)
                 ?? await userManager.FindByEmailAsync(request.UserNameOrEmail))
@@ -25,8 +28,35 @@ namespace Application
 
             var roles = await userManager.GetRolesAsync(user);
             var token = jwtService.GenerateToken(user, roles);
+            user.RefreshToken = jwtService.GenerateRefreshToken();
+            user.RefreshTokenExpiresOn = DateTime.UtcNow.AddDays(7);
 
-            return token;
+            await userManager.UpdateAsync(user);
+
+            return new TokenResponse(token, user.RefreshToken!);
+        }
+
+        public async Task<TokenResponse> RefreshAccessTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken = default)
+        {
+            var user = await userManager.Users
+                .Where(x => x.RefreshToken == request.RefreshToken)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (user is null || user.RefreshTokenExpiresOn < DateTime.UtcNow)
+            {
+                throw new RefreshTokenBadRequestException();
+            }
+
+            var roles = await userManager.GetRolesAsync(user);
+            var token = jwtService.GenerateToken(user, roles);
+            user.RefreshToken = jwtService.GenerateRefreshToken();
+            user.RefreshTokenExpiresOn = DateTime.UtcNow.AddDays(7);
+
+            await userManager.UpdateAsync(user);
+
+            return new TokenResponse(
+                token,
+                user.RefreshToken!);
         }
 
         public async Task<IdentityResult> RegisterUserAsync(RegisterUserRequest request)
