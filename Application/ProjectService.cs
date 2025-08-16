@@ -1,6 +1,7 @@
 ﻿using Application.Absrtactions;
 using AutoMapper;
 using Contracts;
+using Contracts.Common;
 using Contracts.Projects;
 using Contracts.Requests;
 using Contracts.Subtasks;
@@ -11,21 +12,34 @@ using Domain.Models;
 namespace Application
 {
     public sealed class ProjectService(
-        ICustomLogger logger, IUnitOfWork unitOfWork, IMapper mapper, ILinkService linkService)
+        ICustomLogger logger,
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        ILinkService linkService,
+        IDataShapingService<ProjectResponse> dataShapingService)
         : IProjectService
     {
-        public async Task<PagedList<ProjectResponse>> GetPagedProjectsAsync(
+        public async Task<PagedList<ShapedEntity>> GetPagedProjectsAsync(
             ProjectRequestParameters requestParams,
             CancellationToken cancellationToken = default)
         {
             var projects = await unitOfWork.ProjectRepository.GetPagedProjectsAsync(requestParams, cancellationToken);
 
-            var response = mapper.Map<PagedList<ProjectResponse>>(projects);
+            var response = mapper.Map<IEnumerable<ProjectResponse>>(projects.Items);
 
-            GeneratePagedProjectsLinks(response, requestParams);
+            var shapedResponse = dataShapingService
+                .ShapeData(response, requestParams.Properties!)
+                .ToList();
 
+            var pagedResponse = new PagedList<ShapedEntity>(
+                shapedResponse,
+                projects.Page,
+                projects.PageSize,
+                projects.TotalCount);
 
-            return response;
+            GeneratePagedProjectsLinks(pagedResponse, requestParams);
+
+            return pagedResponse;
         }
 
 
@@ -37,7 +51,7 @@ namespace Application
 
             var response = mapper.Map<ProjectResponse>(project);
 
-            GenerateProjectLinks(response);
+            response.Links = GenerateProjectLinks(response.Id).ToList();
 
             return response;
         }
@@ -105,9 +119,10 @@ namespace Application
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        private void GenerateProjectLinks(ProjectResponse response)
+        private IEnumerable<Link> GenerateProjectLinks(Guid id)
         {
-            response.Links.Add(
+            var links = new List<Link>
+            {
                 linkService.GenerateLink(
                     ProjectConstants.GetAllProjects,
                     "projects",
@@ -116,73 +131,62 @@ namespace Application
                     {
                         page = 1,
                         pageSize = 5
-                    }));
+                    }),
 
-            response.Links.Add(
                 linkService.GenerateLink(
                     ProjectConstants.GetProjectById,
                     "self",
                     "GET",
-                    new
-                    {
-                        id = response.Id
-                    }));
+                    new { id }),
 
-            response.Links.Add(
                 linkService.GenerateLink(
                     ProjectConstants.CreateProject,
                     "create_project",
                     "POST",
-                    null));
+                    null),
 
-            response.Links.Add(
                 linkService.GenerateLink(
                     ProjectConstants.UpdateProject,
                     "update_project",
                     "PUT",
-                    new
-                    {
-                        id = response.Id
-                    }));
+                    new { id }),
 
-            response.Links.Add(
                 linkService.GenerateLink(
                     ProjectConstants.DeleteProject,
                     "delete_project",
                     "DELETE",
-                    new
-                    {
-                        id = response.Id
-                    }));
+                    new { id }),
 
-            response.Links.Add(
                 linkService.GenerateLink(
                     ProjectConstants.PatchProject,
                     "partially_update_project",
                     "PATCH",
-                    new
-                    {
-                        id = response.Id
-                    }));
+                    new { id }),
 
-            response.Links.Add(
                 linkService.GenerateLink(
                     SubtaskConstants.GetAllSubtasks,
                     "subtasks",
                     "GET",
                     new
                     {
-                        projectId = response.Id,
+                        projectId = id,
                         page = 1,
                         pageSize = 5
-                    }));
+                    }),
+            };
+
+            return links;
         }
 
-        private void GeneratePagedProjectsLinks(PagedList<ProjectResponse> pagedList, ProjectRequestParameters requestParams)
+        private void GeneratePagedProjectsLinks(
+            PagedList<ShapedEntity> pagedList,
+            ProjectRequestParameters requestParams)
         {
-            foreach(var project in pagedList.Items)
+            foreach (var project in pagedList.Items)
             {
-                GenerateProjectLinks(project);
+
+                var links = GenerateProjectLinks(project.Id);
+                ((IDictionary<string, object?>)project.Entity)["Links"] = links;
             }
 
             if (pagedList.HasHextPage)

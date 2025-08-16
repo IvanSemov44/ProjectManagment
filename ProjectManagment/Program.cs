@@ -9,6 +9,7 @@ using ProjectManagement.Endpoints.Extensions;
 using ProjectManagement.Middleware;
 using ProjectManagement.Extensions;
 using ProjectManagement.Validators.Projects;
+using Contracts.Projects;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,7 @@ builder.Services.AddScoped<ILinkService, LinkService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IServiceManager, ServiceManager>();
 builder.Services.AddSingleton<ICustomLogger, CustomLogger>();
+builder.Services.AddScoped<IDataShapingService<ProjectResponse>, DataShapingService<ProjectResponse>>();
 
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

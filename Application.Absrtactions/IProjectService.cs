@@ -6,7 +6,7 @@ namespace Application.Absrtactions
 {
     public interface IProjectService
     {
-        Task<PagedList<ProjectResponse>> GetPagedProjectsAsync(
+        Task<PagedList<ShapedEntity>> GetPagedProjectsAsync(
             ProjectRequestParameters requestParams,
             CancellationToken cancellationToken = default);
 

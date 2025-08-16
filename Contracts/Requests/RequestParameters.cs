@@ -7,5 +7,6 @@
         public string? SearchTerm { get; init; }
         public string? SortBy { get; init; }
         public string? SortOrder { get; init; }
+        public string? Properties { get; init; }
     }
 }

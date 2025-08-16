@@ -1,6 +1,7 @@
 ﻿using Application.Absrtactions;
 using AutoMapper;
 using Contracts;
+using Contracts.Projects;
 using Domain;
 using Domain.Models;
 using Microsoft.AspNetCore.Identity;
@@ -13,11 +14,12 @@ namespace Application
         IMapper mapper,
         ILinkService linkService,
         UserManager<User> userManager,
-        IJwtService jwtService)
+        IJwtService jwtService,
+        IDataShapingService<ProjectResponse> dataShapingService)
         : IServiceManager
     {
         private readonly Lazy<IProjectService> _projectService = new(()
-            => new ProjectService(logger, unitOfWork, mapper, linkService));
+            => new ProjectService(logger, unitOfWork, mapper, linkService, dataShapingService));
         private readonly Lazy<ISubtaskService> _subtaskService = new(()
             => new SubtaskService(logger, unitOfWork, mapper, linkService));
         private readonly Lazy<IAuthenticationService> _authenticationService = new(()
