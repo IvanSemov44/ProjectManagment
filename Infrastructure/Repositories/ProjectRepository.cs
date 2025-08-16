@@ -1,5 +1,5 @@
 ﻿using Contracts.Requests;
-using Domain;
+using Domain.Models;
 using Domain.Repositories;
 using Infrastructure.Repositories.Extensions;
 using Microsoft.EntityFrameworkCore;

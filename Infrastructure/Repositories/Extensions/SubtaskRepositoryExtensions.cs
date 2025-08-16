@@ -1,4 +1,4 @@
-﻿using Domain;
+﻿using Domain.Models;
 using System.Linq.Expressions;
 
 namespace Infrastructure.Repositories.Extensions

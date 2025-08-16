@@ -1,7 +1,7 @@
 ﻿using Application.Absrtactions;
 using Contracts.Requests;
 using Contracts.Subtasks;
-using Domain;
+using Domain.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;

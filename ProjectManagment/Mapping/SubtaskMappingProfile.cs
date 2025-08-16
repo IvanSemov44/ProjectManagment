@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Contracts.Subtasks;
-using Domain;
+using Domain.Models;
 
 namespace ProjectManagement.Mapping
 {

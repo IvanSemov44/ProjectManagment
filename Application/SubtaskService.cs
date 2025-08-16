@@ -6,6 +6,7 @@ using Contracts.Requests;
 using Contracts.Subtasks;
 using Domain;
 using Domain.Expetions;
+using Domain.Models;
 
 namespace Application
 {

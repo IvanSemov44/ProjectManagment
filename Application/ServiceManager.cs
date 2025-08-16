@@ -2,6 +2,7 @@
 using AutoMapper;
 using Contracts;
 using Domain;
+using Domain.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace Application

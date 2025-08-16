@@ -1,6 +1,6 @@
 ﻿using Contracts.Common;
 
-namespace Domain
+namespace Domain.Models
 {
     public class PagedList<T>(IEnumerable<T> items, int page, int pageSize, int totalCount)
     {

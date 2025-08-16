@@ -2,8 +2,8 @@
 using AutoMapper;
 using Contracts.Tokens;
 using Contracts.Users;
-using Domain;
 using Domain.Expetions;
+using Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

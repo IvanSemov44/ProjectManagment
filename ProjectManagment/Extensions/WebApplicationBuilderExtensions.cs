@@ -10,8 +10,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 using System.Text;
 using System.Threading.RateLimiting;
-
-using Domain;
 using Infrastructure;
 using Application.Options;
 using Contracts.Projects;
@@ -19,6 +17,7 @@ using ProjectManagement.Policies;
 using ProjectManagement.Swagger;
 using Microsoft.OpenApi.Models;
 using System.Security.Cryptography.Xml;
+using Domain.Models;
 
 namespace ProjectManagement.Extensions
 {

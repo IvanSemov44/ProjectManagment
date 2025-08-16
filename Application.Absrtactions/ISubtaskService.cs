@@ -1,6 +1,6 @@
 ﻿using Contracts.Requests;
 using Contracts.Subtasks;
-using Domain;
+using Domain.Models;
 
 namespace Application.Absrtactions
 {

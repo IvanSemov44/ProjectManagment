@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Contracts.Users;
-using Domain;
+using Domain.Models;
 
 namespace ProjectManagement.Mapping
 {

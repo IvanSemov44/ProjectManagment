@@ -1,4 +1,5 @@
 ﻿using Contracts.Requests;
+using Domain.Models;
 
 namespace Domain.Repositories
 {

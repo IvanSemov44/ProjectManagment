@@ -1,6 +1,6 @@
 ﻿using Application.Absrtactions;
 using Application.Options;
-using Domain;
+using Domain.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
