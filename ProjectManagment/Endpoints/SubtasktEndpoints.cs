@@ -21,15 +21,19 @@ namespace ProjectManagement.Endpoints
                 .WithTags("Subtasks")
                 .RequireRateLimiting("token-bucket");
 
-            group.MapGet("", async (
+            group.MapMethods("", ["GET", "HEAD"], async (
                 [FromRoute] Guid projectId,
                 [AsParameters] SubtaskRequestParameters requestParams,
                 [FromServices] IServiceManager serviceManager,
+                HttpContext httpContext,
                 CancellationToken cancellationToken
                 ) =>
             {
                 var subtastks = await serviceManager.SubtaskService
                 .GetPagedSubtasksForProjectAsync(projectId, requestParams, cancellationToken);
+
+                if (httpContext.Request.Method is "HEAD")
+                    return Results.Ok();
 
                 return Results.Ok(subtastks);
             })
@@ -37,10 +41,11 @@ namespace ProjectManagement.Endpoints
             .Produces<PagedList<SubtaskResponse>>()
             .WithName(SubtaskConstants.GetAllSubtasks);
 
-            group.MapGet("{id:guid}", async (
+            group.MapMethods("{id:guid}", ["GET", "HEAD"], async (
                 [FromRoute] Guid projectId,
                 [FromRoute] Guid id,
                 [FromServices] IServiceManager serviceManager,
+                HttpContext httpContext,
                 CancellationToken cancellationToken) =>
             {
                 var subtask = await serviceManager.SubtaskService
@@ -49,6 +54,9 @@ namespace ProjectManagement.Endpoints
                     id,
                     trackChanges: false,
                     cancellationToken);
+
+                if (httpContext.Request.Method is "HEAD")
+                    return Results.Ok();
 
                 return Results.Ok(subtask);
             })
@@ -180,6 +188,13 @@ namespace ProjectManagement.Endpoints
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
             .WithName(SubtaskConstants.PatchSubtask);
+
+            group.MapMethods("", ["OPTIONS"], (HttpContext context) =>
+            {
+                context.Response.Headers.Append("Allow", "GET, HEAD, POST, PUT, DELETE, OPTIONS");
+
+                return Results.Ok();
+            });
         }
     }
 }

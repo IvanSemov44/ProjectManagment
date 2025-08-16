@@ -20,9 +20,9 @@ namespace ProjectManagement.Endpoints
             var group = routeBuilder.MapGroup("projects")
                 .WithTags("Projects")
                 .RequireRateLimiting("fixed-window");
-                //.RequireAuthorization();
+            //.RequireAuthorization();
 
-            group.MapGet("", async (
+            group.MapMethods("", ["GET", "HEAD"], async (
                 [AsParameters] ProjectRequestParameters requestParams,
                 [FromServices] IServiceManager serviceManager,
                 HttpContext context,
@@ -31,6 +31,11 @@ namespace ProjectManagement.Endpoints
             {
                 var projects = await serviceManager.ProjectService
                 .GetPagedProjectsAsync(requestParams, cancellationToken);
+
+                if (context.Request.Method is "HEAD")
+                {
+                    return Results.Ok();
+                }
 
                 if (context.Request.Headers.Accept.Contains("application/xml"))
                 {
@@ -43,9 +48,10 @@ namespace ProjectManagement.Endpoints
             .Produces<PagedList<ProjectResponse>>()
             .WithName(ProjectConstants.GetAllProjects);
 
-            group.MapGet("{id:guid}", async (
+            group.MapMethods("{id:guid}", ["GET", "HEAD"], async (
                 [FromRoute] Guid id,
                 [FromServices] IServiceManager serviceManager,
+                HttpContext context,
                 CancellationToken cancellationToken) =>
             {
                 var project = await serviceManager.ProjectService
@@ -53,6 +59,9 @@ namespace ProjectManagement.Endpoints
                     id,
                     trackChanges: false,
                     cancellationToken);
+
+                if (context.Request.Method is "HEAD")
+                    return Results.Ok();
 
                 return Results.Ok(project);
             })
@@ -62,9 +71,10 @@ namespace ProjectManagement.Endpoints
             .WithName(ProjectConstants.GetProjectById)
             .MapToApiVersion(1);
 
-            group.MapGet("{id:guid}", async (
+            group.MapMethods("{id:guid}", ["GET", "HEAD"], async (
                 [FromRoute] Guid id,
                 [FromServices] IServiceManager serviceManager,
+                HttpContext context,
                 CancellationToken cancellationToken) =>
             {
                 var project = await serviceManager.ProjectService
@@ -73,6 +83,10 @@ namespace ProjectManagement.Endpoints
                             trackChanges: false,
                             cancellationToken);
                 project.Links.RemoveAll(x => x.Method is "GET");
+
+                if (context.Request.Method is "HEAD")
+                    return Results.Ok();
+
                 return Results.Ok(project);
             })
             .CacheOutput()
@@ -117,7 +131,7 @@ namespace ProjectManagement.Endpoints
             .Produces(StatusCodes.Status404NotFound)
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
             .WithName(ProjectConstants.UpdateProject);
- 
+
             group.MapDelete("{id:guid}", async (
                 [FromRoute] Guid id,
                 [FromServices] IServiceManager serviceManager,
@@ -187,6 +201,13 @@ namespace ProjectManagement.Endpoints
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
             .WithName(ProjectConstants.PatchProject);
+
+            group.MapMethods("", ["OPTIONS"], (HttpContext context) =>
+            {
+                context.Response.Headers.Append("Allow", "GET, HEAD, POST, PUT, DELETE, OPTIONS");
+
+                return Results.Ok();
+            });
         }
     }
 }
