@@ -70,6 +70,8 @@ app.AddSwagger();
 
 app.Run();
 
+public partial class Program { }
+
 //app.UseExceptionHandler(); // 1. Exception handling should be first to catch all errors.
 //app.UseHttpsRedirection(); // 2. HTTPS redirection comes early to ensure secure connections.
 //app.UseCors("AllowAll"); // 3. CORS is handled early, before authentication and authorization.
