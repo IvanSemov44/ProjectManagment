@@ -6,6 +6,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using ProjectManagement.CustomResults;
 using ProjectManagement.Middleware;
 using System.Text.Json;
 
@@ -24,11 +25,17 @@ namespace ProjectManagement.Endpoints
             group.MapGet("", async (
                 [AsParameters] ProjectRequestParameters requestParams,
                 [FromServices] IServiceManager serviceManager,
+                HttpContext context,
                 CancellationToken cancellationToken
                 ) =>
             {
                 var projects = await serviceManager.ProjectService
                 .GetPagedProjectsAsync(requestParams, cancellationToken);
+
+                if (context.Request.Headers.Accept.Contains("application/xml"))
+                {
+                    return new XmlResults(projects);
+                }
 
                 return Results.Ok(projects);
             })

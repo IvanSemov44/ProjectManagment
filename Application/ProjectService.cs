@@ -185,8 +185,14 @@ namespace Application
             foreach (var project in pagedList.Items)
             {
 
-                var links = GenerateProjectLinks(project.Id);
-                ((IDictionary<string, object?>)project.Entity)["Links"] = links;
+                var linksProperty = project.Properties
+                    .FirstOrDefault(x => x.Name is "Links");
+
+                if (linksProperty is not null)
+                {
+                    var links = GenerateProjectLinks(project.Id);
+                    linksProperty.Value = links;
+                }
             }
 
             if (pagedList.HasHextPage)

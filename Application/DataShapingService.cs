@@ -17,8 +17,6 @@ namespace Application
         public ShapedEntity ShapeData(T entity, string properties)
         {
             var shapedEntity = new ShapedEntity();
-            var entityObject = new ExpandoObject();
-
             var requestedProperites = ParseProperties(properties);
 
             foreach (var property in _properties)
@@ -26,13 +24,17 @@ namespace Application
                 if (requestedProperites.Contains(property.Name, StringComparer.OrdinalIgnoreCase))
                 {
                     var propertyValue = property.GetValue(entity);
-                    entityObject.TryAdd(property.Name, propertyValue);
+                    shapedEntity.Properties.Add(
+                        new Property
+                        {
+                            Name = property.Name,
+                            Value = propertyValue
+                        });
                 }
             }
 
-            shapedEntity.Entity = entityObject;
             shapedEntity.Id = (Guid)_properties
-                .First(p=>p.Name.Equals("Id",StringComparison.OrdinalIgnoreCase))
+                .First(p => p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
                 .GetValue(entity)!;
 
             return shapedEntity;
