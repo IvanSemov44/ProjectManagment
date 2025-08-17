@@ -19,8 +19,8 @@ namespace ProjectManagement.Endpoints
         {
             var group = routeBuilder.MapGroup("projects")
                 .WithTags("Projects")
-                .RequireRateLimiting("fixed-window");
-            //.RequireAuthorization();
+                .RequireRateLimiting("fixed-window")
+                .RequireAuthorization();
 
             group.MapMethods("", ["GET", "HEAD"], async (
                 [AsParameters] ProjectRequestParameters requestParams,
